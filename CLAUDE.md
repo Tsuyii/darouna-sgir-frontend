@@ -459,6 +459,7 @@ npm run preview  # Preview build
 - Never leave uncommitted work at the end of a session
 - Commit messages should describe **what was built**, not what files were changed
 - Remote: `origin` → `https://github.com/Tsuyii/darouna-sgir-frontend`
+- Always create or update CHANGELOG.md with today's date and a summary of what was built before the final commit
 
 ---
 
