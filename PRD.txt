@@ -1,0 +1,564 @@
+                
+● Product Requirements Document (PRD)                              
+                 
+  S.G.I.R. — Système de Gestion Immobilière Résidentielle              
+  Version: 1.0 | Date: March 31, 2026 | Status: In Development     
+                                                                   
+  ---
+  1. Product Overview
+
+  1.1 Problem Statement
+
+  Residential building management in North Africa (primarily       
+  Algeria/France) is largely manual and fragmented. Building       
+  managers (syndics) track finances in spreadsheets, communicate   
+  via WhatsApp groups, and have no visibility into maintenance     
+  work. Residents have no formal channel to pay charges, file      
+  complaints, or participate in building decisions. Caretakers     
+  (gardiens) receive verbal instructions with no accountability    
+  trail.
+
+  1.2 Product Vision
+
+  S.G.I.R. is a mobile-first platform that digitalizes the entire  
+  operations of a residential building — connecting syndics,       
+  residents, and caretakers in one system with full transparency,  
+  accountability, and automation.
+
+  1.3 Target Users
+
+  ┌──────────┬─────────────────────┬───────────────────────────┐   
+  │   User   │        Role         │      Key Pain Today       │   
+  ├──────────┼─────────────────────┼───────────────────────────┤   
+  │          │ Building            │ Manual bookkeeping, no    │   
+  │ Syndic   │ manager/owner       │ task tracking, hard to    │   
+  │          │                     │ collect charges           │   
+  ├──────────┼─────────────────────┼───────────────────────────┤   
+  │          │ Apartment tenant or │ No visibility on how fees │   
+  │ Resident │  owner              │  are spent, no formal     │   
+  │          │                     │ complaint channel         │   
+  ├──────────┼─────────────────────┼───────────────────────────┤   
+  │          │ Building            │ Verbal task assignments,  │   
+  │ Gardien  │ caretaker/janitor   │ no proof of completed     │   
+  │          │                     │ work                      │   
+  └──────────┴─────────────────────┴───────────────────────────┘   
+
+  1.4 Success Metrics
+
+  - Charge collection rate increases from ~60% to 90%+
+  - Complaint resolution time drops below 72 hours
+  - 100% of maintenance tasks have photographic proof
+  - Syndic spends <1 hour/week on administrative tasks
+
+  ---
+  2. Users & Roles
+
+  2.1 Syndic (Building Manager)
+
+  The primary admin of the platform. Owns one or more buildings.   
+
+  Can do:
+  - Create and manage buildings and apartments
+  - Invite residents and assign them to apartments
+  - Assign and approve tasks for gardiens
+  - Issue charges and track payments
+  - Create budgets and approve financial plans
+  - Generate financial reports
+  - Post announcements and create votes
+  - Respond to resident complaints
+  - View all notifications and activity
+
+  2.2 Resident
+
+  A person who lives in an apartment (tenant or owner).
+
+  Can do:
+  - View their apartment info and monthly charges
+  - Make payments (online or record offline)
+  - File and track complaints
+  - Read and comment on announcements
+  - Participate in building votes
+  - Receive notifications about their account
+
+  2.3 Gardien (Caretaker)
+
+  A staff member assigned to one or more buildings.
+
+  Can do:
+  - View tasks assigned to them
+  - Update task status (start, progress, submit)
+  - Upload before/after/progress photos for tasks
+  - Receive task assignment notifications
+
+  ---
+  3. Feature Requirements
+
+  ---
+  Feature 1: Authentication & Account Management
+
+  Priority: P0 (Must Have)
+
+  Requirements
+
+  - User can register with name, email, password, phone number, and
+   role
+  - Passwords are hashed with bcrypt — never stored in plain text  
+  - Login returns a short-lived access token (15 min) and a        
+  long-lived refresh token (7 days)
+  - Refresh token can be exchanged for a new access token without  
+  re-login
+  - Logout blacklists the token — it cannot be reused
+  - User can change their own password (requires current password) 
+  - Rate limit on login: max 5 attempts per 15 minutes per IP      
+
+  Acceptance Criteria
+
+  - Registering with a duplicate email returns a 409 Conflict error
+  - Login with wrong password returns 401
+  - Accessing protected routes without a token returns 401
+  - Using a blacklisted (logged-out) token returns 401
+  - Token refresh works within the 7-day window
+
+  ---
+  Feature 2: Building & Apartment Management
+
+  Priority: P0 (Must Have)
+
+  Requirements
+
+  - Syndic can create a building with name, address, number of     
+  floors, and amenities
+  - Syndic can add apartments to a building with unit number,      
+  floor, size (m²), and monthly charge
+  - Syndic can assign a resident to an apartment (marks it
+  occupied)
+  - Syndic can unassign a resident (marks apartment vacant)        
+  - Syndic can assign a gardien to a building
+  - Syndic can view building statistics: total units, occupied %,  
+  total monthly revenue, open tasks
+
+  Acceptance Criteria
+
+  - Only the syndic who owns a building can manage it
+  - Assigning a resident to an occupied apartment fails with a     
+  conflict error
+  - Deleting a building deletes its apartments (cascade)
+  - Stats endpoint returns correct occupancy percentage and revenue
+   total
+
+  ---
+  Feature 3: Task Management & Approval Workflow
+
+  Priority: P0 (Must Have)
+
+  This is a full maintenance workflow with photographic proof of   
+  completion.
+
+  Task Status Lifecycle
+
+  pending → assigned → in_progress → submitted_for_approval →      
+  approved / rejected / needs_revision → completed
+
+  Requirements
+
+  - Syndic creates a task with title, description, category,       
+  priority (low/medium/high/urgent), and due date
+  - Syndic assigns the task to a gardien — gardien receives a      
+  notification
+  - Gardien updates status to in_progress when they start
+  - Gardien uploads photos (before/during/after) as work progresses
+  - Gardien submits task for approval — syndic receives a
+  notification
+  - Syndic reviews photos and approves or rejects
+  - Rejection returns to needs_revision with a reason — gardien is 
+  notified
+  - Every status change is logged with timestamp and the person who
+   made it
+
+  Photo Validation
+
+  - Photos are scored for: blur (0–100), darkness (0–100),
+  similarity to other photos (0–100)
+  - Low-quality photos (high blur or very dark) are flagged        
+  - Gardien cannot submit near-identical before/after photos as    
+  proof
+  - Overall confidence score (0–100) is calculated per submission  
+
+  Acceptance Criteria
+
+  - Gardien cannot skip status steps (can't go from pending to     
+  submitted)
+  - Syndic cannot approve a task with no photos attached
+  - Blurry photo upload is flagged with a warning
+  - Full status history is stored and visible to syndic
+
+  ---
+  Feature 4: Financial Charges & Payments
+
+  Priority: P0 (Must Have)
+
+  Charges
+
+  - Syndic issues charges to apartments: monthly fee, maintenance  
+  levy, utility split, etc.
+  - Charge has amount, due date, category, and description
+  - System automatically marks overdue charges past their due date 
+  - Reminders can be sent to residents with overdue balances       
+
+  Payments
+
+  - Resident initiates payment against a charge
+  - Supports: Stripe (online card), bank transfer, cash, check     
+  - Payment starts in pending state
+  - Syndic confirms offline payments (cash/check/transfer)
+  - Stripe payments auto-confirm via webhook
+  - Payment record links to both charge and resident
+
+  Acceptance Criteria
+
+  - A charge cannot be overpaid (payment > charge amount fails)    
+  - Confirming a payment marks the linked charge as paid
+  - Overdue charges are correctly identified by due date
+  - Payment history is visible per apartment and per resident      
+
+  ---
+  Feature 5: Budget Management
+
+  Priority: P1 (Should Have)**
+
+  Requirements
+
+  - Syndic creates a budget for a category (electricity, water,    
+  cleaning, security, maintenance, parking, other) and period      
+  (monthly/quarterly/yearly)
+  - Budget has a planned amount
+  - As charges are issued, actual spending is tracked against the  
+  budget
+  - Variance (planned vs actual) is calculated automatically       
+  - Budgets go through an approval workflow before being active    
+  - Syndic can view a summary of all active budgets with variance  
+  indicators
+
+  Acceptance Criteria
+
+  - Variance is computed as (actual - planned) / planned * 100     
+  - Over-budget items are highlighted in the summary
+  - Only approved budgets count toward financial reports
+
+  ---
+  Feature 6: Financial Reports
+
+  Priority: P1 (Should Have)
+
+  Requirements
+
+  - Syndic can generate a financial report for any time period     
+  - Report includes: total revenue, total expenses, net balance    
+  - Breakdown by category (what was spent on what)
+  - Monthly revenue trend chart data (last 12 months)
+  - Cash flow analysis: inflows vs outflows
+  - Year-over-year comparison
+  - Reports are saved and can be viewed later
+
+  Acceptance Criteria
+
+  - Report totals match the sum of confirmed payments for the      
+  period
+  - Category breakdown percentages add up to 100%
+  - Historical reports are not modified after generation
+
+  ---
+  Feature 7: Announcements
+
+  Priority: P1 (Should Have)
+
+  Requirements
+
+  - Syndic can post announcements to the building
+  - Target audience can be: all, residents only, gardiens only     
+  - Residents can comment on announcements
+  - Residents can like announcements
+  - System tracks who has viewed an announcement
+  - Announcements can be marked urgent (triggers push notification)
+
+  Acceptance Criteria
+
+  - Gardien cannot see resident-only announcements
+  - Viewing an announcement records the resident's ID and timestamp
+  - Deleting an announcement removes its comments
+
+  ---
+  Feature 8: Voting / Polls
+
+  Priority: P1 (Should Have)
+
+  Requirements
+
+  - Syndic creates a vote with a question, custom options, start   
+  date, end date, and quorum (minimum % participation)
+  - Residents cast one vote per poll
+  - Results show vote counts and percentages per option in real    
+  time
+  - Voting closes automatically after end date
+  - Quorum status is shown (met / not met)
+  - Residents receive a notification when a new vote opens
+
+  Acceptance Criteria
+
+  - A resident can only vote once per poll — second attempt returns
+   409
+  - Results are visible to all residents after voting closes       
+  - Quorum is correctly calculated based on eligible voters in the 
+  building
+
+  ---
+  Feature 9: Complaint Management
+
+  Priority: P1 (Should Have)
+
+  Status Lifecycle
+
+  open → in_progress → resolved → closed
+
+  Requirements
+
+  - Resident submits a complaint with category, description,       
+  urgency (low/medium/high/emergency)
+  - Syndic receives a notification for new complaints
+  - Syndic updates status and adds a response
+  - After resolution, resident rates their satisfaction (1–5 stars)
+  - Syndic can view complaint statistics (average resolution time, 
+  satisfaction score)
+
+  Acceptance Criteria
+
+  - Emergency complaints trigger a high-priority notification      
+  - Resident can only rate a complaint marked resolved
+  - Complaint history is preserved even after closing
+
+  ---
+  Feature 10: Notification System
+
+  Priority: P1 (Should Have)
+
+  Channels
+
+  - Push notification (via device token)
+  - Email (via Nodemailer)
+  - In-app (stored in DB, fetched on demand)
+
+  Requirements
+
+  - Every significant action triggers a relevant notification (see 
+  list below)
+  - Notifications have priorities: low, medium, high, critical     
+  - Users can mark notifications as read or archived
+  - Unread count badge is available via API
+  - Old notifications (30+ days) are cleaned up automatically      
+
+  Key Notification Triggers (subset)
+
+  ┌─────────────────────────────┬───────────────────┬──────────┐   
+  │            Event            │ Who Gets Notified │ Priority │   
+  ├─────────────────────────────┼───────────────────┼──────────┤   
+  │ New charge issued           │ Resident          │ Medium   │   
+  ├─────────────────────────────┼───────────────────┼──────────┤   
+  │ Charge overdue              │ Resident          │ High     │   
+  ├─────────────────────────────┼───────────────────┼──────────┤   
+  │ Payment confirmed           │ Resident          │ Medium   │   
+  ├─────────────────────────────┼───────────────────┼──────────┤   
+  │ Task assigned               │ Gardien           │ Medium   │   
+  ├─────────────────────────────┼───────────────────┼──────────┤   
+  │ Task submitted for approval │ Syndic            │ Medium   │   
+  ├─────────────────────────────┼───────────────────┼──────────┤   
+  │ Task approved/rejected      │ Gardien           │ Medium   │   
+  ├─────────────────────────────┼───────────────────┼──────────┤   
+  │ New complaint               │ Syndic            │ High     │   
+  ├─────────────────────────────┼───────────────────┼──────────┤   
+  │ Complaint resolved          │ Resident          │ Medium   │   
+  ├─────────────────────────────┼───────────────────┼──────────┤   
+  │ New announcement            │ All targets       │ Low      │   
+  ├─────────────────────────────┼───────────────────┼──────────┤   
+  │ New vote opened             │ Residents         │ Medium   │   
+  ├─────────────────────────────┼───────────────────┼──────────┤   
+  │ Budget over threshold       │ Syndic            │ High     │   
+  ├─────────────────────────────┼───────────────────┼──────────┤   
+  │ Emergency complaint         │ Syndic            │ Critical │   
+  └─────────────────────────────┴───────────────────┴──────────┘   
+
+  Acceptance Criteria
+
+  - Notification is created in DB even if push delivery fails      
+  - Unread count accurately reflects unread in-app notifications   
+  - Marking one notification read does not affect others
+
+  ---
+  Feature 11: Multi-Language Support
+
+  Priority: P2 (Nice to Have)
+
+  Requirements
+
+  - API responses and error messages in English, French, and Arabic
+  - Language selected from: ?lang= query param → request body →    
+  cookie → Accept-Language header → default (English)
+  - Arabic responses use RTL-compatible text (no layout changes in 
+  API)
+
+  Acceptance Criteria
+
+  - GET /api/auth/me?lang=fr returns French messages
+  - Unsupported language code falls back to English gracefully     
+
+  ---
+  4. Non-Functional Requirements
+
+  4.1 Security
+
+  - All passwords hashed with bcrypt (10 salt rounds) via pre-save 
+  hook — never hashed manually
+  - JWT tokens expire in 15 minutes; refresh tokens in 7 days      
+  - Logged-out tokens are blacklisted and rejected
+  - Rate limiting: 100 req/15 min globally, 5 req/15 min on auth   
+  routes
+  - MongoDB injection prevented via express-mongo-sanitize
+  - HTTP headers hardened via Helmet
+  - CORS locked to the configured FRONTEND_URL only
+
+  4.2 Performance
+
+  - MongoDB connection pooling (configurable via MONGODB_POOL_SIZE)
+  - Sharp used for image resizing before storage (reduces file     
+  size)
+  - Pagination on all list endpoints to prevent large payloads     
+
+  4.3 Reliability
+
+  - Database connection retries on startup with exponential backoff
+  - Graceful shutdown — open connections closed before process exit
+  - All errors caught and handled — no unhandled promise rejections
+   crash the server
+
+  4.4 Observability
+
+  - HTTP request logs via Morgan (method, path, status, response   
+  time)
+  - Application logs via Winston (levels: debug/info/warn/error)   
+  - Error logs written to error.log, all logs to combined.log      
+  - Stack traces in development, sanitized messages in production  
+
+  4.5 Testing
+
+  - 193 automated tests covering all routes, auth flows, error     
+  cases, and permission checks
+  - Jest with coverage reporting
+  - Tests run against real in-memory MongoDB (no mocks for DB)     
+
+  ---
+  5. API Design Principles
+
+  - RESTful — resources are nouns, HTTP verbs define the action    
+  - Consistent response format — every response follows this       
+  envelope:
+  {
+    "statusCode": 200,
+    "data": { },
+    "message": "Human readable message",
+    "success": true,
+    "timestamp": "2026-03-31T10:00:00Z"
+  }
+  - Consistent error format — every error has a code, message, and 
+  (in dev) a stack
+  - Role enforcement at route level — permissions checked before   
+  any DB query runs
+  - Soft deletes — users and budgets are never hard-deleted;       
+  deletedAt is set
+
+  ---
+  6. Out of Scope (v1.0)
+
+  - Mobile app (this is backend-only; frontend is a separate       
+  project)
+  - SMS delivery (framework is in place, actual SMS provider not   
+  integrated)
+  - Document/file uploads beyond task photos
+  - Multi-building dashboards (aggregated across all buildings)    
+  - Automated late payment penalties
+  - Stripe subscription billing (only one-time payments in v1)     
+  - Tenant contract management
+
+  ---
+  7. Environment & Deployment
+
+  Required Environment Variables
+
+  ┌────────────────────┬───────────────────────────────────────┐   
+  │      Variable      │              Description              │   
+  ├────────────────────┼───────────────────────────────────────┤   
+  │ PORT               │ Server port (default 5000)            │   
+  ├────────────────────┼───────────────────────────────────────┤   
+  │ NODE_ENV           │ development or production             │   
+  ├────────────────────┼───────────────────────────────────────┤   
+  │ MONGODB_URI        │ Full MongoDB connection string        │   
+  ├────────────────────┼───────────────────────────────────────┤   
+  │ JWT_SECRET         │ Secret key for access tokens          │   
+  ├────────────────────┼───────────────────────────────────────┤   
+  │ JWT_REFRESH_SECRET │ Secret key for refresh tokens         │   
+  ├────────────────────┼───────────────────────────────────────┤   
+  │ FRONTEND_URL       │ CORS whitelist (your frontend domain) │   
+  ├────────────────────┼───────────────────────────────────────┤   
+  │ JWT_EXPIRY         │ Access token TTL (default: 15m)       │   
+  ├────────────────────┼───────────────────────────────────────┤   
+  │ JWT_REFRESH_EXPIRY │ Refresh token TTL (default: 7d)       │   
+  └────────────────────┴───────────────────────────────────────┘   
+
+  Commands
+
+  npm run dev     # Start with nodemon (hot reload)
+  npm start       # Start in production
+  npm test        # Run test suite with coverage
+
+  ---
+  8. Current Status
+
+  ┌─────────────────────────┬──────────────────────────────────┐   
+  │          Area           │              Status              │   
+  ├─────────────────────────┼──────────────────────────────────┤   
+  │ Auth                    │ Complete                         │   
+  ├─────────────────────────┼──────────────────────────────────┤   
+  │ Buildings & Apartments  │ Complete                         │   
+  ├─────────────────────────┼──────────────────────────────────┤   
+  │ Task Management         │ Complete                         │   
+  ├─────────────────────────┼──────────────────────────────────┤   
+  │ Charges & Payments      │ Complete                         │   
+  ├─────────────────────────┼──────────────────────────────────┤   
+  │ Budgets                 │ Complete                         │   
+  ├─────────────────────────┼──────────────────────────────────┤   
+  │ Financial Reports       │ Complete                         │   
+  ├─────────────────────────┼──────────────────────────────────┤   
+  │ Announcements           │ Complete                         │   
+  ├─────────────────────────┼──────────────────────────────────┤   
+  │ Votes                   │ Complete                         │   
+  ├─────────────────────────┼──────────────────────────────────┤   
+  │ Complaints              │ Complete                         │   
+  ├─────────────────────────┼──────────────────────────────────┤   
+  │ Notifications (in-app)  │ Complete                         │   
+  ├─────────────────────────┼──────────────────────────────────┤   
+  │ Notifications           │ Framework built, not fully       │   
+  │ (push/email)            │ integrated                       │   
+  ├─────────────────────────┼──────────────────────────────────┤   
+  │ Photo Processing        │ Framework built, scores computed │   
+  ├─────────────────────────┼──────────────────────────────────┤   
+  │ Multi-language          │ Complete                         │   
+  ├─────────────────────────┼──────────────────────────────────┤   
+  │ Tests (193 passing)     │ Complete                         │   
+  └─────────────────────────┴──────────────────────────────────┘   
+
+  ---
+  That's your full PRD. It covers what the product is, who uses it,
+   every feature with requirements and acceptance criteria,        
+  non-functional requirements, and what's out of scope. You can    
+  hand this to a frontend developer, a new backend contributor, or 
+  a stakeholder and they'll have everything they need to understand
+   the system.
+

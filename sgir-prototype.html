@@ -1,0 +1,1858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>S.G.I.R. — Design Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  /* ── DESIGN TOKENS ─────────────────────────────────────────── */
+  :root {
+    --primary:       #1E40AF;
+    --primary-light: #3B82F6;
+    --primary-50:    #EFF6FF;
+    --accent:        #06B6D4;
+    --accent-50:     #ECFEFF;
+    --success:       #10B981;
+    --success-50:    #ECFDF5;
+    --warning:       #F59E0B;
+    --warning-50:    #FFFBEB;
+    --danger:        #EF4444;
+    --danger-50:     #FEF2F2;
+    --purple:        #8B5CF6;
+    --purple-50:     #F5F3FF;
+    --bg:            #F1F5F9;
+    --surface:       #FFFFFF;
+    --surface2:      #F8FAFC;
+    --border:        #E2E8F0;
+    --border-light:  #F1F5F9;
+    --text-1:        #0F172A;
+    --text-2:        #475569;
+    --text-3:        #94A3B8;
+    --sidebar-bg:    #0F172A;
+    --sidebar-text:  #94A3B8;
+    --sidebar-active:#FFFFFF;
+    --radius-sm:     6px;
+    --radius-md:     10px;
+    --radius-lg:     16px;
+    --radius-xl:     24px;
+    --shadow-sm:     0 1px 3px rgba(0,0,0,.08);
+    --shadow-md:     0 4px 12px rgba(0,0,0,.10);
+    --shadow-lg:     0 8px 32px rgba(0,0,0,.12);
+  }
+
+  /* ── RESET & BASE ───────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 14px; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text-1);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── TOP ROLE SWITCHER ──────────────────────────────────────── */
+  .role-bar {
+    background: var(--sidebar-bg);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    height: 48px;
+    gap: 8px;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+  }
+  .role-bar .brand {
+    color: #fff;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: -.3px;
+    margin-right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .role-bar .brand span {
+    background: var(--primary-light);
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+  }
+  .role-btn {
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    transition: all .2s;
+    color: var(--sidebar-text);
+    background: transparent;
+  }
+  .role-btn:hover { color: #fff; background: rgba(255,255,255,.08); }
+  .role-btn.active { color: #fff; }
+  .role-btn.active[data-role="syndic"]  { background: var(--primary-light); }
+  .role-btn.active[data-role="resident"]{ background: var(--success); }
+  .role-btn.active[data-role="gardien"] { background: var(--warning); color: #0F172A; }
+  .role-bar .spacer { flex: 1; }
+  .user-chip {
+    display: flex; align-items: center; gap: 8px;
+    color: var(--sidebar-text); font-size: 12px;
+  }
+  .user-chip .avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--primary); color: #fff;
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 700;
+  }
+
+  /* ── APP LAYOUT ─────────────────────────────────────────────── */
+  .app {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR ────────────────────────────────────────────────── */
+  .sidebar {
+    width: 220px;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    padding: 16px 12px;
+    gap: 2px;
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+  .sidebar .section-label {
+    color: rgba(148,163,184,.5);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 12px 10px 6px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all .15s;
+    color: var(--sidebar-text);
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+  }
+  .nav-item:hover { background: rgba(255,255,255,.06); color: #fff; }
+  .nav-item.active { background: rgba(59,130,246,.15); color: #fff; }
+  .nav-item .icon { width: 18px; height: 18px; opacity: .7; flex-shrink: 0; }
+  .nav-item.active .icon { opacity: 1; }
+  .nav-item .badge {
+    margin-left: auto;
+    background: var(--danger);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 20px;
+  }
+
+  /* ── MAIN CONTENT ───────────────────────────────────────────── */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── TOP BAR ────────────────────────────────────────────────── */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .topbar .page-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-1);
+  }
+  .topbar .page-sub {
+    font-size: 12px;
+    color: var(--text-3);
+    margin-left: 4px;
+  }
+  .topbar .spacer { flex: 1; }
+  .topbar .search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 7px 12px;
+    font-size: 13px;
+    color: var(--text-3);
+    width: 220px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    transition: all .15s;
+  }
+  .btn-primary { background: var(--primary-light); color: #fff; }
+  .btn-primary:hover { background: var(--primary); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-2);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--bg); }
+  .notif-btn {
+    width: 36px; height: 36px;
+    border-radius: var(--radius-md);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: grid; place-items: center;
+    cursor: pointer;
+    position: relative;
+  }
+  .notif-btn .dot {
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 8px; height: 8px;
+    background: var(--danger);
+    border-radius: 50%;
+    border: 2px solid #fff;
+  }
+
+  /* ── SCREEN CONTAINERS ──────────────────────────────────────── */
+  .screen {
+    display: none;
+    padding: 24px 28px;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+  }
+  .screen.active { display: flex; }
+
+  /* ── STAT CARDS ─────────────────────────────────────────────── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .stat-card .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .stat-card .icon-wrap {
+    width: 40px; height: 40px;
+    border-radius: var(--radius-md);
+    display: grid; place-items: center;
+  }
+  .stat-card .trend {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+  .trend-up   { background: var(--success-50); color: var(--success); }
+  .trend-down { background: var(--danger-50);  color: var(--danger); }
+  .trend-warn { background: var(--warning-50); color: #B45309; }
+  .stat-card .value {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -.5px;
+    color: var(--text-1);
+  }
+  .stat-card .label {
+    font-size: 12px;
+    color: var(--text-3);
+    font-weight: 500;
+  }
+
+  /* ── SECTION HEADER ─────────────────────────────────────────── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  .section-header h2 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-1);
+  }
+  .see-all {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--primary-light);
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: inherit;
+  }
+
+  /* ── GRID 2-COL ─────────────────────────────────────────────── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+
+  /* ── CARD ───────────────────────────────────────────────────── */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .card-head {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-head h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-1);
+  }
+  .card-body { padding: 12px 0; }
+
+  /* ── LIST ITEMS ─────────────────────────────────────────────── */
+  .list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    transition: background .15s;
+    cursor: pointer;
+  }
+  .list-item:hover { background: var(--surface2); }
+  .list-item .avatar-sq {
+    width: 36px; height: 36px;
+    border-radius: var(--radius-sm);
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 700;
+    flex-shrink: 0;
+    color: #fff;
+  }
+  .list-item .info { flex: 1; min-width: 0; }
+  .list-item .info .name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-1);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .list-item .info .sub {
+    font-size: 11px;
+    color: var(--text-3);
+    margin-top: 2px;
+  }
+  .list-item .meta {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .list-item .meta .amount {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-1);
+  }
+  .list-item .meta .date {
+    font-size: 11px;
+    color: var(--text-3);
+    margin-top: 2px;
+  }
+
+  /* ── BADGES / TAGS ──────────────────────────────────────────── */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .tag-blue    { background: var(--primary-50);  color: var(--primary); }
+  .tag-green   { background: var(--success-50);  color: #047857; }
+  .tag-amber   { background: var(--warning-50);  color: #92400E; }
+  .tag-red     { background: var(--danger-50);   color: #991B1B; }
+  .tag-purple  { background: var(--purple-50);   color: #5B21B6; }
+  .tag-cyan    { background: var(--accent-50);   color: #0E7490; }
+  .tag-slate   { background: #F1F5F9;             color: #475569; }
+
+  /* ── PROGRESS BAR ───────────────────────────────────────────── */
+  .progress-wrap { }
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 20px;
+  }
+  .progress-row .label {
+    width: 100px;
+    font-size: 12px;
+    color: var(--text-2);
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-bar .fill {
+    height: 100%;
+    border-radius: 99px;
+    background: var(--primary-light);
+  }
+  .progress-row .pct {
+    width: 36px;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-1);
+  }
+
+  /* ── TASK ITEMS ─────────────────────────────────────────────── */
+  .task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-light);
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .task-item:last-child { border-bottom: none; }
+  .task-item:hover { background: var(--surface2); }
+  .task-item .priority-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .task-item .task-info { flex: 1; }
+  .task-item .task-info .title {
+    font-size: 13px; font-weight: 600; color: var(--text-1);
+    margin-bottom: 4px;
+  }
+  .task-item .task-info .meta {
+    display: flex; gap: 8px; align-items: center;
+  }
+  .task-item .right {
+    display: flex; flex-direction: column;
+    align-items: flex-end; gap: 6px;
+  }
+  .task-item .due {
+    font-size: 11px; color: var(--text-3);
+  }
+
+  /* ── COMPLAINT ITEMS ────────────────────────────────────────── */
+  .complaint-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-light);
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .complaint-item:last-child { border-bottom: none; }
+  .complaint-item:hover { background: var(--surface2); }
+
+  /* ── ANNOUNCEMENT CARD ──────────────────────────────────────── */
+  .announce-item {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-light);
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .announce-item:last-child { border-bottom: none; }
+  .announce-item:hover { background: var(--surface2); }
+  .announce-item .announce-title {
+    font-size: 13px; font-weight: 600; color: var(--text-1);
+    margin-bottom: 4px;
+  }
+  .announce-item .announce-body {
+    font-size: 12px; color: var(--text-2);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .announce-item .announce-foot {
+    display: flex; gap: 8px; align-items: center;
+  }
+
+  /* ── PAYMENT CARD ───────────────────────────────────────────── */
+  .pay-card {
+    background: linear-gradient(135deg, var(--primary) 0%, #2563EB 60%, var(--accent) 100%);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .pay-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.07);
+  }
+  .pay-card::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; right: 40px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.05);
+  }
+  .pay-card .label { font-size: 12px; opacity: .75; margin-bottom: 6px; }
+  .pay-card .amount { font-size: 32px; font-weight: 800; letter-spacing: -1px; }
+  .pay-card .apt { font-size: 12px; opacity: .7; margin-top: 4px; }
+  .pay-card .row {
+    display: flex; gap: 16px; margin-top: 20px;
+    position: relative; z-index: 1;
+  }
+  .pay-card .mini { flex: 1; }
+  .pay-card .mini .mini-label { font-size: 10px; opacity: .7; }
+  .pay-card .mini .mini-val { font-size: 14px; font-weight: 700; margin-top: 2px; }
+  .pay-card .pay-btn {
+    position: absolute; top: 20px; right: 20px;
+    background: rgba(255,255,255,.2);
+    border: 1px solid rgba(255,255,255,.3);
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+    backdrop-filter: blur(4px);
+    z-index: 1;
+  }
+
+  /* ── CHART (CSS only) ───────────────────────────────────────── */
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 120px;
+    padding: 0 20px 0;
+  }
+  .bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    height: 100%;
+    justify-content: flex-end;
+  }
+  .bar-col .bar {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    background: var(--primary-50);
+    transition: background .2s;
+    cursor: pointer;
+    min-height: 4px;
+  }
+  .bar-col .bar:hover,
+  .bar-col.active .bar { background: var(--primary-light); }
+  .bar-col .month {
+    font-size: 10px;
+    color: var(--text-3);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .chart-labels {
+    display: flex; justify-content: space-between;
+    padding: 0 20px;
+    margin-top: 4px;
+  }
+  .chart-labels span {
+    font-size: 10px; color: var(--text-3);
+  }
+
+  /* ── DONUT ──────────────────────────────────────────────────── */
+  .donut-wrap {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 16px 20px;
+  }
+  .donut {
+    width: 100px; height: 100px;
+    flex-shrink: 0;
+  }
+  .donut-legend { display: flex; flex-direction: column; gap: 8px; }
+  .legend-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px;
+  }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+  .legend-label { color: var(--text-2); }
+  .legend-val { font-weight: 700; color: var(--text-1); margin-left: auto; }
+
+  /* ── GARDIEN TASK CARD ──────────────────────────────────────── */
+  .gtask-card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: pointer;
+    transition: box-shadow .15s, transform .15s;
+    box-shadow: var(--shadow-sm);
+  }
+  .gtask-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+  .gtask-card .gtask-head {
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .gtask-card .gtask-icon {
+    width: 40px; height: 40px;
+    border-radius: var(--radius-md);
+    background: var(--primary-50);
+    display: grid; place-items: center;
+    flex-shrink: 0;
+  }
+  .gtask-card .gtask-title {
+    font-size: 13px; font-weight: 700; color: var(--text-1);
+  }
+  .gtask-card .gtask-loc {
+    font-size: 11px; color: var(--text-3); margin-top: 3px;
+  }
+  .gtask-card .gtask-status {
+    margin-top: 4px;
+  }
+  .status-bar {
+    display: flex; gap: 4px; margin-top: 8px;
+  }
+  .status-step {
+    flex: 1;
+    height: 4px;
+    border-radius: 99px;
+    background: var(--border);
+  }
+  .status-step.done { background: var(--success); }
+  .status-step.active { background: var(--primary-light); }
+  .gtask-footer {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  /* ── PHOTO UPLOAD ZONE ──────────────────────────────────────── */
+  .photo-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+    color: var(--text-3);
+  }
+  .photo-zone:hover {
+    border-color: var(--primary-light);
+    background: var(--primary-50);
+    color: var(--primary);
+  }
+  .photo-zone .upload-icon { font-size: 28px; margin-bottom: 8px; }
+  .photo-zone .upload-text { font-size: 13px; font-weight: 500; }
+  .photo-zone .upload-sub { font-size: 11px; margin-top: 4px; opacity: .7; }
+
+  .photo-thumbs {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  }
+  .photo-thumb {
+    aspect-ratio: 1;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    position: relative;
+  }
+  .photo-thumb img {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .photo-thumb .thumb-label {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,.6);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 6px;
+    text-align: center;
+  }
+
+  /* ── VOTE CARD ──────────────────────────────────────────────── */
+  .vote-card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    padding: 18px 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .vote-card .vote-q { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+  .vote-option {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+    cursor: pointer;
+    border: 2px solid var(--border);
+    transition: all .15s;
+  }
+  .vote-option:hover { border-color: var(--primary-light); background: var(--primary-50); }
+  .vote-option.voted { border-color: var(--success); background: var(--success-50); }
+  .vote-option .opt-label { flex: 1; font-size: 13px; font-weight: 500; }
+  .vote-option .opt-bar {
+    width: 60px; height: 4px;
+    background: var(--border); border-radius: 99px; overflow: hidden;
+  }
+  .vote-option .opt-bar .fill { height: 100%; background: var(--success); border-radius: 99px; }
+  .vote-option .opt-pct { font-size: 12px; font-weight: 700; color: var(--text-2); width: 32px; text-align: right; }
+
+  /* ── EMPTY STATE ────────────────────────────────────────────── */
+  .empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-3);
+  }
+  .empty-state .empty-icon { font-size: 32px; margin-bottom: 10px; }
+  .empty-state .empty-text { font-size: 13px; }
+
+  /* ── SCROLLBAR ──────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+  /* ── DIVIDER ────────────────────────────────────────────────── */
+  .divider { height: 1px; background: var(--border-light); margin: 0 20px; }
+
+  /* ── TABLE ──────────────────────────────────────────────────── */
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    padding: 10px 20px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-3);
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 12px 20px;
+    font-size: 13px;
+    color: var(--text-1);
+    border-bottom: 1px solid var(--border-light);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+
+  /* ── SPLASH / OVERVIEW BANNER ───────────────────────────────── */
+  .overview-banner {
+    background: linear-gradient(120deg, #1E40AF 0%, #1D4ED8 50%, #0891B2 100%);
+    border-radius: var(--radius-xl);
+    padding: 24px 28px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  .overview-banner::before {
+    content: '';
+    position: absolute; top: -60px; right: -20px;
+    width: 220px; height: 220px; border-radius: 50%;
+    background: rgba(255,255,255,.05);
+  }
+  .overview-banner .greet { font-size: 13px; opacity: .75; margin-bottom: 4px; }
+  .overview-banner .greet-name { font-size: 20px; font-weight: 800; }
+  .overview-banner .greet-sub { font-size: 12px; opacity: .65; margin-top: 4px; }
+  .overview-banner .banner-stats {
+    display: flex; gap: 28px; position: relative; z-index: 1;
+  }
+  .overview-banner .bstat { text-align: center; }
+  .overview-banner .bstat .bval { font-size: 22px; font-weight: 800; }
+  .overview-banner .bstat .blabel { font-size: 11px; opacity: .7; margin-top: 2px; }
+
+  /* ── LOGIN SCREEN ───────────────────────────────────────────── */
+  #screen-login {
+    background: var(--bg);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 40px;
+  }
+  #screen-login.active {
+    display: flex;
+  }
+  .login-box {
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+    padding: 40px 36px;
+    width: 380px;
+    max-width: 100%;
+  }
+  .login-logo {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 28px;
+    justify-content: center;
+  }
+  .login-logo .logo-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: 12px;
+    display: grid; place-items: center;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(30,64,175,.3);
+  }
+  .login-logo .logo-text { font-size: 20px; font-weight: 800; color: var(--text-1); }
+  .login-logo .logo-sub { font-size: 11px; color: var(--text-3); }
+  .login-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; text-align: center; }
+  .login-subtitle { font-size: 12px; color: var(--text-3); text-align: center; margin-bottom: 28px; }
+  .form-group { margin-bottom: 16px; }
+  .form-label { font-size: 12px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; display: block; }
+  .form-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text-1);
+    background: var(--surface);
+    transition: border-color .15s;
+    outline: none;
+  }
+  .form-input:focus { border-color: var(--primary-light); }
+  .login-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    margin-top: 8px;
+    box-shadow: 0 4px 12px rgba(30,64,175,.25);
+    transition: opacity .15s;
+  }
+  .login-btn:hover { opacity: .9; }
+  .role-selector-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px;
+  }
+  .role-chip {
+    padding: 8px 6px;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--border);
+    cursor: pointer;
+    text-align: center;
+    transition: all .15s;
+    font-size: 11px; font-weight: 600; color: var(--text-2);
+  }
+  .role-chip:hover { border-color: var(--primary-light); color: var(--primary); }
+  .role-chip.active { border-color: var(--primary-light); background: var(--primary-50); color: var(--primary); }
+  .role-chip .chip-icon { font-size: 18px; margin-bottom: 4px; }
+
+  /* ── ANIMATIONS ─────────────────────────────────────────────── */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .screen.active, #screen-login.active {
+    animation: fadeIn .25s ease;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ ROLE SWITCHER BAR ════════════════════════════════════════ -->
+<div class="role-bar">
+  <div class="brand">
+    <span>🏢</span> S.G.I.R.
+  </div>
+  <button class="role-btn" data-role="login" onclick="setRole('login')">Login Screen</button>
+  <button class="role-btn active" data-role="syndic" onclick="setRole('syndic')">👤 Syndic</button>
+  <button class="role-btn" data-role="resident" onclick="setRole('resident')">🏠 Resident</button>
+  <button class="role-btn" data-role="gardien" onclick="setRole('gardien')">🔧 Gardien</button>
+  <div class="spacer"></div>
+  <div class="user-chip">
+    <div class="avatar">KA</div>
+    <span id="user-label">Karim Amrani · Syndic</span>
+  </div>
+</div>
+
+<!-- ══ APP LAYOUT ═══════════════════════════════════════════════ -->
+<div class="app" id="app-layout">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar"></nav>
+
+  <!-- MAIN -->
+  <div class="main" id="main-area">
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div>
+        <span class="page-title" id="page-title">Dashboard Overview</span>
+        <span class="page-sub" id="page-sub">— Résidence Les Pins, Alger</span>
+      </div>
+      <div class="spacer"></div>
+      <div class="search-box">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        Search...
+      </div>
+      <div class="notif-btn">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div class="dot"></div>
+      </div>
+    </div>
+
+    <!-- SCREENS INJECTED HERE -->
+    <div id="screens-container" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;"></div>
+  </div>
+</div>
+
+<!-- ══ LOGIN SCREEN ══════════════════════════════════════════════ -->
+<div id="screen-login">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="logo-icon">🏢</div>
+      <div>
+        <div class="logo-text">S.G.I.R.</div>
+        <div class="logo-sub">Gestion Immobilière Résidentielle</div>
+      </div>
+    </div>
+    <div class="login-title">Welcome back</div>
+    <div class="login-subtitle">Sign in to manage your residence</div>
+    <div class="role-selector-row">
+      <div class="role-chip active" onclick="selectLoginRole(this)">
+        <div class="chip-icon">👔</div>Syndic
+      </div>
+      <div class="role-chip" onclick="selectLoginRole(this)">
+        <div class="chip-icon">🏠</div>Resident
+      </div>
+      <div class="role-chip" onclick="selectLoginRole(this)">
+        <div class="chip-icon">🔧</div>Gardien
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email address</label>
+      <input class="form-input" type="email" placeholder="you@example.com" value="karim.amrani@gmail.com" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" placeholder="••••••••" value="••••••••" />
+    </div>
+    <button class="login-btn">Sign in →</button>
+    <div style="text-align:center;margin-top:16px;font-size:12px;color:var(--text-3)">
+      Forgot password? <span style="color:var(--primary-light);cursor:pointer;font-weight:600">Reset</span>
+    </div>
+  </div>
+  <div style="margin-top:24px;font-size:12px;color:var(--text-3)">
+    S.G.I.R. v1.0 · Secure · Multi-language · 3 roles
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   DATA & STATE
+═══════════════════════════════════════════════════════════════ */
+const ROLES = {
+  syndic: {
+    user: { name: 'Karim Amrani', initials: 'KA', label: 'Karim Amrani · Syndic' },
+    nav: [
+      { icon: gridIcon(), label: 'Overview',    id: 'overview',   active: true },
+      { icon: buildIcon(), label: 'Buildings',  id: 'buildings' },
+      { icon: taskIcon(),  label: 'Tasks',      id: 'tasks', badge: '5' },
+      { sep: 'Finance' },
+      { icon: moneyIcon(), label: 'Charges',    id: 'charges' },
+      { icon: chartIcon(), label: 'Reports',    id: 'reports' },
+      { sep: 'Community' },
+      { icon: megaIcon(),  label: 'Announcements', id: 'announcements' },
+      { icon: voteIcon(),  label: 'Votes',      id: 'votes' },
+      { icon: warnIcon(),  label: 'Complaints', id: 'complaints', badge: '3' },
+      { sep: 'System' },
+      { icon: notifIcon(), label: 'Notifications', id: 'notifs' },
+    ]
+  },
+  resident: {
+    user: { name: 'Amira Khelil', initials: 'AK', label: 'Amira Khelil · Resident' },
+    nav: [
+      { icon: gridIcon(),  label: 'My Home',      id: 'res-home', active: true },
+      { icon: moneyIcon(), label: 'Payments',     id: 'res-payments' },
+      { icon: warnIcon(),  label: 'Complaints',   id: 'res-complaints' },
+      { sep: 'Building' },
+      { icon: megaIcon(),  label: 'Announcements',id: 'res-announcements' },
+      { icon: voteIcon(),  label: 'Votes',        id: 'res-votes' },
+      { sep: 'Account' },
+      { icon: notifIcon(), label: 'Notifications',id: 'res-notifs', badge: '2' },
+    ]
+  },
+  gardien: {
+    user: { name: 'Hassan Meftah', initials: 'HM', label: 'Hassan Meftah · Gardien' },
+    nav: [
+      { icon: gridIcon(),  label: 'My Tasks',      id: 'grd-home', active: true },
+      { icon: taskIcon(),  label: 'In Progress',   id: 'grd-inprog', badge: '2' },
+      { icon: checkIcon(), label: 'Completed',     id: 'grd-done' },
+      { sep: 'Upload' },
+      { icon: photoIcon(), label: 'Photo Upload',  id: 'grd-photo' },
+      { sep: 'Account' },
+      { icon: notifIcon(), label: 'Notifications', id: 'grd-notifs', badge: '1' },
+    ]
+  }
+};
+
+let currentRole = 'syndic';
+let activeScreen = 'overview';
+
+/* ═══════════════════════════════════════════════════════════════
+   ICONS (inline SVG helpers)
+═══════════════════════════════════════════════════════════════ */
+function svg(path, vb='0 0 24 24') {
+  return `<svg class="icon" viewBox="${vb}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
+}
+function gridIcon()  { return svg('<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>'); }
+function buildIcon() { return svg('<path d="M3 21V7l9-4 9 4v14"/><path d="M9 21V12h6v9"/>'); }
+function taskIcon()  { return svg('<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'); }
+function moneyIcon() { return svg('<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'); }
+function chartIcon() { return svg('<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>'); }
+function megaIcon()  { return svg('<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'); }
+function voteIcon()  { return svg('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'); }
+function warnIcon()  { return svg('<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'); }
+function notifIcon() { return svg('<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>'); }
+function checkIcon() { return svg('<polyline points="20 6 9 17 4 12"/>'); }
+function photoIcon() { return svg('<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>'); }
+
+/* ═══════════════════════════════════════════════════════════════
+   SIDEBAR RENDER
+═══════════════════════════════════════════════════════════════ */
+function renderSidebar(role) {
+  const items = ROLES[role].nav;
+  const sidebar = document.getElementById('sidebar');
+  sidebar.innerHTML = items.map(item => {
+    if (item.sep) return `<div class="section-label">${item.sep}</div>`;
+    const badge = item.badge ? `<span class="badge">${item.badge}</span>` : '';
+    return `<button class="nav-item ${item.active ? 'active' : ''}" onclick="navTo('${item.id}', this)">${item.icon} ${item.label}${badge}</button>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SCREEN REGISTRY
+═══════════════════════════════════════════════════════════════ */
+function navTo(id, btn) {
+  // Update nav
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  // Render screen
+  const container = document.getElementById('screens-container');
+  const screenFn = SCREENS[id];
+  if (screenFn) {
+    container.innerHTML = `<div class="screen active" id="scr-${id}">${screenFn()}</div>`;
+    // Update topbar title
+    const titles = {
+      'overview':'Dashboard Overview','buildings':'Buildings & Apartments','tasks':'Task Management',
+      'charges':'Charges & Payments','reports':'Financial Reports','announcements':'Announcements',
+      'votes':'Building Votes','complaints':'Complaint Tracker','notifs':'Notifications',
+      'res-home':'My Home','res-payments':'My Payments','res-complaints':'My Complaints',
+      'res-announcements':'Announcements','res-votes':'Votes','res-notifs':'Notifications',
+      'grd-home':'My Tasks','grd-inprog':'In Progress','grd-done':'Completed Tasks',
+      'grd-photo':'Photo Upload','grd-notifs':'Notifications'
+    };
+    document.getElementById('page-title').textContent = titles[id] || id;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ROLE SWITCH
+═══════════════════════════════════════════════════════════════ */
+function setRole(role) {
+  // Update role buttons
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-role="${role}"]`).classList.add('active');
+
+  const appLayout = document.getElementById('app-layout');
+  const loginScreen = document.getElementById('screen-login');
+
+  if (role === 'login') {
+    appLayout.style.display = 'none';
+    loginScreen.style.display = 'flex';
+    loginScreen.classList.add('active');
+    return;
+  }
+
+  loginScreen.style.display = 'none';
+  loginScreen.classList.remove('active');
+  appLayout.style.display = 'flex';
+  currentRole = role;
+  renderSidebar(role);
+
+  const userData = ROLES[role].user;
+  document.querySelector('.user-chip .avatar').textContent = userData.initials;
+  document.getElementById('user-label').textContent = userData.label;
+
+  // Load default screen
+  const defaultScreens = { syndic: 'overview', resident: 'res-home', gardien: 'grd-home' };
+  const subs = { syndic:'— Résidence Les Pins, Alger', resident:'— Apt 4B · Résidence Les Pins', gardien:'— Résidence Les Pins & Résidence Atlas' };
+  document.getElementById('page-sub').textContent = subs[role];
+  navTo(defaultScreens[role], document.querySelector('.nav-item'));
+}
+
+function selectLoginRole(el) {
+  document.querySelectorAll('.role-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SCREEN BUILDERS
+═══════════════════════════════════════════════════════════════ */
+const SCREENS = {
+
+  /* ── SYNDIC: OVERVIEW ─────────────────────────────────────── */
+  'overview': () => `
+    <div style="display:flex;flex-direction:column;gap:20px;padding:24px 28px;flex:1">
+      <div class="overview-banner">
+        <div>
+          <div class="greet">Good morning 👋</div>
+          <div class="greet-name">Karim Amrani</div>
+          <div class="greet-sub">You have 5 pending tasks and 3 open complaints</div>
+        </div>
+        <div class="banner-stats">
+          <div class="bstat"><div class="bval">24</div><div class="blabel">Apartments</div></div>
+          <div class="bstat"><div class="bval">91%</div><div class="blabel">Occupied</div></div>
+          <div class="bstat"><div class="bval">87%</div><div class="blabel">Collected</div></div>
+          <div class="bstat"><div class="bval">5</div><div class="blabel">Open Tasks</div></div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="header">
+            <div class="icon-wrap" style="background:var(--primary-50)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-light)" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <span class="trend trend-up">+12%</span>
+          </div>
+          <div class="value">284,000 <span style="font-size:14px;font-weight:500;color:var(--text-3)">DZD</span></div>
+          <div class="label">Monthly Revenue</div>
+        </div>
+        <div class="stat-card">
+          <div class="header">
+            <div class="icon-wrap" style="background:var(--danger-50)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <span class="trend trend-down">3 units</span>
+          </div>
+          <div class="value">37,500 <span style="font-size:14px;font-weight:500;color:var(--text-3)">DZD</span></div>
+          <div class="label">Overdue Charges</div>
+        </div>
+        <div class="stat-card">
+          <div class="header">
+            <div class="icon-wrap" style="background:var(--success-50)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <span class="trend trend-up">+3 today</span>
+          </div>
+          <div class="value">18</div>
+          <div class="label">Tasks Completed</div>
+        </div>
+        <div class="stat-card">
+          <div class="header">
+            <div class="icon-wrap" style="background:var(--purple-50)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <span class="trend trend-up">22/24</span>
+          </div>
+          <div class="value">22</div>
+          <div class="label">Active Residents</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Revenue Chart -->
+        <div class="card">
+          <div class="card-head">
+            <h3>Revenue (Last 6 Months)</h3>
+            <span class="tag tag-blue">284k DZD this month</span>
+          </div>
+          <div style="padding:16px 0 4px">
+            <div class="bar-chart">
+              ${[{m:'Oct',h:60},{m:'Nov',h:75},{m:'Dec',h:65},{m:'Jan',h:82},{m:'Feb',h:70},{m:'Mar',h:95,active:true}]
+                .map(b=>`<div class="bar-col ${b.active?'active':''}"><div class="bar" style="height:${b.h}%"></div><span class="month">${b.m}</span></div>`).join('')}
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Tasks -->
+        <div class="card">
+          <div class="card-head">
+            <h3>Recent Tasks</h3>
+            <button class="see-all" onclick="navTo('tasks', document.querySelectorAll('.nav-item')[2])">See all →</button>
+          </div>
+          <div class="card-body">
+            ${[
+              {title:'Fix elevator door', who:'Hassan M.', status:'in_progress', priority:'#EF4444'},
+              {title:'Clean rooftop', who:'Ali B.', status:'submitted', priority:'#F59E0B'},
+              {title:'Paint stairwell B', who:'Hassan M.', status:'pending', priority:'#94A3B8'},
+              {title:'Replace lobby light', who:'Ali B.', status:'approved', priority:'#10B981'},
+            ].map(t=>`
+              <div class="task-item">
+                <div class="priority-dot" style="background:${t.priority}"></div>
+                <div class="task-info">
+                  <div class="title">${t.title}</div>
+                  <div class="meta"><span class="tag tag-slate">${t.who}</span></div>
+                </div>
+                <div class="right">
+                  <span class="tag ${t.status==='approved'?'tag-green':t.status==='in_progress'?'tag-blue':t.status==='submitted'?'tag-cyan':'tag-slate'}">${t.status}</span>
+                </div>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Complaints -->
+        <div class="card">
+          <div class="card-head">
+            <h3>Open Complaints</h3>
+            <span class="tag tag-red">3 open</span>
+          </div>
+          <div class="card-body">
+            ${[
+              {apt:'Apt 4B',cat:'Plumbing',urg:'high',since:'2 days ago'},
+              {apt:'Apt 7A',cat:'Noise',urg:'medium',since:'4 days ago'},
+              {apt:'Apt 2C',cat:'Electricity',urg:'emergency',since:'1 hour ago'},
+            ].map(c=>`
+              <div class="complaint-item">
+                <div class="avatar-sq" style="background:${c.urg==='emergency'?'var(--danger)':c.urg==='high'?'var(--warning)':'var(--accent)'}">
+                  ${c.apt.split(' ')[1]}
+                </div>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:600">${c.apt} — ${c.cat}</div>
+                  <div style="font-size:11px;color:var(--text-3);margin-top:2px">${c.since}</div>
+                </div>
+                <span class="tag ${c.urg==='emergency'?'tag-red':c.urg==='high'?'tag-amber':'tag-cyan'}">${c.urg}</span>
+              </div>`).join('')}
+          </div>
+        </div>
+
+        <!-- Payment Collection -->
+        <div class="card">
+          <div class="card-head">
+            <h3>Payment Collection Rate</h3>
+            <span class="tag tag-green">87% this month</span>
+          </div>
+          <div class="card-body">
+            ${[
+              {label:'March 2026', pct:87, color:'var(--success)'},
+              {label:'February',   pct:79, color:'var(--primary-light)'},
+              {label:'January',    pct:92, color:'var(--success)'},
+              {label:'December',   pct:68, color:'var(--warning)'},
+            ].map(p=>`
+              <div class="progress-row">
+                <div class="progress-label" style="width:100px;font-size:12px;color:var(--text-2);flex-shrink:0">${p.label}</div>
+                <div class="progress-bar" style="flex:1"><div class="fill" style="width:${p.pct}%;background:${p.color}"></div></div>
+                <div class="pct" style="width:36px;text-align:right;font-size:12px;font-weight:700">${p.pct}%</div>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`,
+
+  /* ── SYNDIC: TASKS ────────────────────────────────────────── */
+  'tasks': () => `
+    <div style="display:flex;flex-direction:column;gap:20px;padding:24px 28px">
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="btn btn-primary">+ New Task</button>
+        <button class="btn btn-ghost">All Buildings</button>
+        <div style="display:flex;gap:6px;margin-left:auto">
+          ${['pending','in_progress','submitted','approved','completed'].map(s=>`<span class="tag ${s==='pending'?'tag-slate':s==='in_progress'?'tag-blue':s==='submitted'?'tag-cyan':s==='approved'?'tag-green':'tag-purple'}" style="cursor:pointer">${s.replace('_',' ')}</span>`).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>All Tasks (12)</h3></div>
+        <table>
+          <thead><tr><th>Task</th><th>Assigned To</th><th>Priority</th><th>Due Date</th><th>Status</th><th>Photos</th></tr></thead>
+          <tbody>
+            ${[
+              {title:'Fix elevator door',     who:'Hassan M.',  prio:'urgent',  due:'Apr 1', status:'in_progress', photos:3},
+              {title:'Clean rooftop terrace', who:'Ali B.',     prio:'medium',  due:'Apr 3', status:'submitted',   photos:5},
+              {title:'Paint stairwell B',     who:'Hassan M.',  prio:'low',     due:'Apr 8', status:'pending',     photos:0},
+              {title:'Replace lobby light',   who:'Ali B.',     prio:'high',    due:'Mar 31',status:'approved',    photos:4},
+              {title:'Fix water pump',        who:'Hassan M.',  prio:'urgent',  due:'Apr 2', status:'in_progress', photos:2},
+              {title:'Trim garden hedges',    who:'Yacine K.',  prio:'low',     due:'Apr 10',status:'pending',     photos:0},
+            ].map(t=>`<tr>
+              <td style="font-weight:600">${t.title}</td>
+              <td>${t.who}</td>
+              <td><span class="tag ${t.prio==='urgent'?'tag-red':t.prio==='high'?'tag-amber':t.prio==='medium'?'tag-blue':'tag-slate'}">${t.prio}</span></td>
+              <td style="color:var(--text-3)">${t.due}</td>
+              <td><span class="tag ${t.status==='approved'?'tag-green':t.status==='in_progress'?'tag-blue':t.status==='submitted'?'tag-cyan':'tag-slate'}">${t.status.replace('_',' ')}</span></td>
+              <td>${t.photos > 0 ? `<span style="font-size:12px;color:var(--text-2)">📷 ${t.photos}</span>` : '<span style="color:var(--text-3);font-size:12px">—</span>'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`,
+
+  /* ── SYNDIC: COMPLAINTS ────────────────────────────────────── */
+  'complaints': () => `
+    <div style="display:flex;flex-direction:column;gap:20px;padding:24px 28px">
+      <div style="display:flex;gap:10px;align-items:center">
+        <div style="display:flex;gap:6px">
+          ${[{l:'All',c:'tag-blue'},{l:'Open',c:'tag-red'},{l:'In Progress',c:'tag-amber'},{l:'Resolved',c:'tag-green'}].map(s=>`<span class="tag ${s.c}" style="cursor:pointer;padding:6px 12px">${s.l}</span>`).join('')}
+        </div>
+        <div class="spacer" style="flex:1"></div>
+        <button class="btn btn-ghost">Export CSV</button>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-head"><h3>Complaints (7)</h3></div>
+          ${[
+            {apt:'Apt 2C', cat:'Electricity', urg:'emergency', status:'open',        since:'1h ago',   desc:'Total power outage in apartment since this morning'},
+            {apt:'Apt 4B', cat:'Plumbing',    urg:'high',      status:'in_progress', since:'2d ago',   desc:'Water leak under kitchen sink, getting worse'},
+            {apt:'Apt 7A', cat:'Noise',       urg:'medium',    status:'open',        since:'4d ago',   desc:'Neighbors making noise after midnight repeatedly'},
+            {apt:'Apt 1D', cat:'Security',    urg:'high',      status:'resolved',    since:'1wk ago',  desc:'Main door lock broken, anyone can enter'},
+            {apt:'Apt 9B', cat:'Elevator',    urg:'medium',    status:'resolved',    since:'2wk ago',  desc:'Elevator stuck on floor 3 for several hours'},
+          ].map(c=>`
+            <div class="complaint-item">
+              <div class="avatar-sq" style="background:${c.urg==='emergency'?'var(--danger)':c.urg==='high'?'var(--warning)':'var(--accent)'}; font-size:10px">
+                ${c.apt.replace('Apt ','')}
+              </div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:600;margin-bottom:2px">${c.apt} — ${c.cat}</div>
+                <div style="font-size:11px;color:var(--text-3);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.desc}</div>
+                <div style="display:flex;gap:6px;align-items:center">
+                  <span class="tag ${c.urg==='emergency'?'tag-red':c.urg==='high'?'tag-amber':'tag-cyan'}">${c.urg}</span>
+                  <span class="tag ${c.status==='open'?'tag-red':c.status==='in_progress'?'tag-blue':'tag-green'}">${c.status.replace('_',' ')}</span>
+                  <span style="font-size:11px;color:var(--text-3);margin-left:auto">${c.since}</span>
+                </div>
+              </div>
+            </div>`).join('')}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card">
+            <div class="card-head"><h3>Stats</h3></div>
+            <div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">
+              ${[{l:'Avg Resolution',v:'2.4 days',c:'var(--success)'},{l:'Open Complaints',v:'3',c:'var(--danger)'},{l:'Emergency',v:'1',c:'var(--danger)'},{l:'Satisfaction',v:'4.1 ★',c:'var(--warning)'}].map(s=>`
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:12px;color:var(--text-2)">${s.l}</span>
+                  <span style="font-size:14px;font-weight:700;color:${s.c}">${s.v}</span>
+                </div>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`,
+
+  /* ── SYNDIC: REPORTS ──────────────────────────────────────── */
+  'reports': () => `
+    <div style="display:flex;flex-direction:column;gap:20px;padding:24px 28px">
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-primary">Generate Report</button>
+        <button class="btn btn-ghost">Q1 2026</button>
+        <button class="btn btn-ghost">All Buildings</button>
+      </div>
+      <div class="stats-grid">
+        ${[
+          {label:'Total Revenue',  val:'852,000 DZD', trend:'+8%',  up:true,  color:'var(--primary-50)',icon:'💰'},
+          {label:'Total Expenses', val:'423,500 DZD', trend:'-3%',  up:false, color:'var(--danger-50)', icon:'📉'},
+          {label:'Net Balance',    val:'428,500 DZD', trend:'+18%', up:true,  color:'var(--success-50)',icon:'📈'},
+          {label:'Unpaid Charges', val:'37,500 DZD',  trend:'3 apts',up:false,color:'var(--warning-50)',icon:'⚠️'},
+        ].map(s=>`
+          <div class="stat-card">
+            <div class="header">
+              <div class="icon-wrap" style="background:${s.color};font-size:20px;display:flex;align-items:center;justify-content:center">${s.icon}</div>
+              <span class="trend ${s.up?'trend-up':'trend-down'}">${s.trend}</span>
+            </div>
+            <div class="value" style="font-size:20px">${s.val}</div>
+            <div class="label">${s.label}</div>
+          </div>`).join('')}
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><h3>Monthly Revenue Trend (2026)</h3></div>
+          <div style="padding:16px 0 4px">
+            <div class="bar-chart" style="height:140px">
+              ${[{m:'Jan',h:72},{m:'Feb',h:65},{m:'Mar',h:95,active:true}].map(b=>`
+                <div class="bar-col ${b.active?'active':''}">
+                  <div class="bar" style="height:${b.h}%"></div>
+                  <span class="month">${b.m}</span>
+                </div>`).join('')}
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Expense Breakdown</h3></div>
+          <div class="donut-wrap">
+            <svg class="donut" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#E2E8F0" stroke-width="3"/>
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#3B82F6" stroke-width="3" stroke-dasharray="35 65" stroke-dashoffset="25"/>
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#10B981" stroke-width="3" stroke-dasharray="25 75" stroke-dashoffset="-10"/>
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#F59E0B" stroke-width="3" stroke-dasharray="20 80" stroke-dashoffset="-35"/>
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#8B5CF6" stroke-width="3" stroke-dasharray="20 80" stroke-dashoffset="-55"/>
+              <text x="18" y="20" text-anchor="middle" font-size="5" font-weight="bold" fill="#0F172A">Q1</text>
+            </svg>
+            <div class="donut-legend">
+              ${[{l:'Maintenance',v:'35%',c:'#3B82F6'},{l:'Utilities',v:'25%',c:'#10B981'},{l:'Security',v:'20%',c:'#F59E0B'},{l:'Cleaning',v:'20%',c:'#8B5CF6'}].map(i=>`
+                <div class="legend-item">
+                  <div class="legend-dot" style="background:${i.c}"></div>
+                  <span class="legend-label">${i.l}</span>
+                  <span class="legend-val" style="margin-left:16px">${i.v}</span>
+                </div>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`,
+
+  /* ── SYNDIC: ANNOUNCEMENTS ────────────────────────────────── */
+  'announcements': () => `
+    <div style="display:flex;flex-direction:column;gap:20px;padding:24px 28px">
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-primary">+ New Announcement</button>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Announcements</h3></div>
+        ${[
+          {title:'Water Shutdown – Saturday April 5',body:'There will be a scheduled water shutdown on Saturday April 5 from 8 AM to 2 PM for maintenance work on the main supply line.',tags:['urgent','all'],views:21,likes:8,time:'2 hours ago'},
+          {title:'Monthly Charges Due – April',body:'Monthly residence charges for April 2026 are now due. Please ensure payment by April 10th to avoid late fees.',tags:['residents'],views:18,likes:3,time:'Yesterday'},
+          {title:'New Caretaker – Hassan Meftah',body:'We welcome Hassan Meftah as our new building caretaker. He will be responsible for daily maintenance and cleaning tasks.',tags:['all'],views:22,likes:12,time:'3 days ago'},
+        ].map(a=>`
+          <div class="announce-item">
+            <div class="announce-title">${a.title}</div>
+            <div class="announce-body">${a.body}</div>
+            <div class="announce-foot">
+              ${a.tags.map(t=>`<span class="tag ${t==='urgent'?'tag-red':t==='residents'?'tag-blue':'tag-slate'}">${t}</span>`).join('')}
+              <span style="font-size:11px;color:var(--text-3);margin-left:auto">${a.views} views · ${a.likes} likes · ${a.time}</span>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`,
+
+  /* ── SYNDIC: VOTES ────────────────────────────────────────── */
+  'votes': () => `
+    <div style="display:flex;flex-direction:column;gap:20px;padding:24px 28px">
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-primary">+ Create Vote</button>
+      </div>
+      <div class="grid-2">
+        <div class="vote-card">
+          <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+            <span class="tag tag-green">Active · Closes Apr 7</span>
+            <span style="font-size:11px;color:var(--text-3)">18/22 voted</span>
+          </div>
+          <div class="vote-q">Should we install security cameras in the lobby and parking area?</div>
+          ${[{opt:'Yes, install cameras',pct:72,voted:true},{opt:'No, too expensive',pct:17},{opt:'Only in parking',pct:11}].map(o=>`
+            <div class="vote-option ${o.voted?'voted':''}">
+              <span class="opt-label">${o.opt}</span>
+              <div class="opt-bar"><div class="fill" style="width:${o.pct}%"></div></div>
+              <span class="opt-pct">${o.pct}%</span>
+            </div>`).join('')}
+          <div style="margin-top:10px;font-size:11px;color:var(--text-3)">Quorum: ✅ Met (82% participation)</div>
+        </div>
+        <div class="vote-card">
+          <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+            <span class="tag tag-slate">Closed · Mar 25</span>
+            <span style="font-size:11px;color:var(--text-3)">20/22 voted</span>
+          </div>
+          <div class="vote-q">What day should weekly building cleanup be scheduled?</div>
+          ${[{opt:'Saturday morning',pct:55,voted:true},{opt:'Sunday morning',pct:30},{opt:'Friday evening',pct:15}].map(o=>`
+            <div class="vote-option ${o.voted?'voted':''}">
+              <span class="opt-label">${o.opt}</span>
+              <div class="opt-bar"><div class="fill" style="width:${o.pct}%"></div></div>
+              <span class="opt-pct">${o.pct}%</span>
+            </div>`).join('')}
+          <div style="margin-top:10px;font-size:11px;color:var(--text-3)">Result: Saturday morning wins ✅</div>
+        </div>
+      </div>
+    </div>`,
+
+  /* ── RESIDENT: HOME ───────────────────────────────────────── */
+  'res-home': () => `
+    <div style="display:flex;flex-direction:column;gap:20px;padding:24px 28px">
+      <div class="pay-card">
+        <button class="pay-btn">Pay Now →</button>
+        <div class="label">Current Balance Due</div>
+        <div class="amount">12,500 DZD</div>
+        <div class="apt">Apt 4B · Floor 4 · 85m²</div>
+        <div class="row">
+          <div class="mini"><div class="mini-label">Due Date</div><div class="mini-val">April 10</div></div>
+          <div class="mini"><div class="mini-label">Status</div><div class="mini-val">⚠️ Due Soon</div></div>
+          <div class="mini"><div class="mini-label">Building</div><div class="mini-val">Les Pins</div></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><h3>Recent Charges</h3><button class="see-all" onclick="navTo('res-payments', document.querySelectorAll('.nav-item')[1])">See all →</button></div>
+          <div class="card-body">
+            ${[
+              {label:'Monthly Charge – April', amount:'12,500 DZD', status:'unpaid', date:'Due Apr 10'},
+              {label:'Monthly Charge – March', amount:'12,500 DZD', status:'paid',   date:'Paid Mar 8'},
+              {label:'Maintenance Levy – Q1',  amount:'4,000 DZD',  status:'paid',   date:'Paid Jan 15'},
+            ].map(c=>`
+              <div class="list-item">
+                <div class="avatar-sq" style="background:${c.status==='paid'?'var(--success)':'var(--warning)'}">
+                  ${c.status==='paid'?'✓':'!'}
+                </div>
+                <div class="info">
+                  <div class="name">${c.label}</div>
+                  <div class="sub">${c.date}</div>
+                </div>
+                <div class="meta">
+                  <div class="amount">${c.amount}</div>
+                  <span class="tag ${c.status==='paid'?'tag-green':'tag-amber'}">${c.status}</span>
+                </div>
+              </div>`).join('')}
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Latest Announcements</h3></div>
+          <div class="card-body">
+            ${[
+              {title:'Water Shutdown – Saturday',body:'Scheduled maintenance April 5, 8AM–2PM',time:'2h ago',urgent:true},
+              {title:'Monthly Charges Due',body:'April charges are now due. Pay by April 10.',time:'Yesterday',urgent:false},
+            ].map(a=>`
+              <div class="announce-item">
+                <div class="announce-title">${a.urgent?'🔴 ':''} ${a.title}</div>
+                <div class="announce-body">${a.body}</div>
+                <div class="announce-foot">
+                  <span style="font-size:11px;color:var(--text-3)">${a.time}</span>
+                </div>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>My Open Complaints</h3><button class="btn btn-primary" style="font-size:12px;padding:6px 12px">+ New Complaint</button></div>
+        ${[
+          {cat:'Plumbing',desc:'Water leak under kitchen sink',status:'in_progress',urg:'high',since:'2 days ago'},
+        ].map(c=>`
+          <div class="complaint-item">
+            <div class="avatar-sq" style="background:var(--warning)">🔧</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600">${c.cat} — ${c.desc}</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:3px">${c.since}</div>
+            </div>
+            <span class="tag tag-blue">${c.status.replace('_',' ')}</span>
+          </div>`).join('')}
+      </div>
+    </div>`,
+
+  /* ── RESIDENT: PAYMENTS ───────────────────────────────────── */
+  'res-payments': () => `
+    <div style="display:flex;flex-direction:column;gap:20px;padding:24px 28px">
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        ${[
+          {label:'Total Paid (2026)', val:'25,000 DZD', tag:'tag-green'},
+          {label:'Outstanding',       val:'12,500 DZD', tag:'tag-amber'},
+          {label:'Next Due',          val:'April 10',   tag:'tag-blue'},
+        ].map(s=>`
+          <div class="stat-card">
+            <div class="value" style="font-size:22px">${s.val}</div>
+            <div class="label">${s.label}</div>
+          </div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Payment History</h3></div>
+        <table>
+          <thead><tr><th>Description</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody>
+            ${[
+              {desc:'Monthly Charge – April 2026', amt:'12,500 DZD', method:'Pending',      date:'Due Apr 10', status:'unpaid'},
+              {desc:'Monthly Charge – March 2026', amt:'12,500 DZD', method:'Stripe',       date:'Mar 8',      status:'paid'},
+              {desc:'Maintenance Levy – Q1',       amt:'4,000 DZD',  method:'Bank Transfer',date:'Jan 15',     status:'paid'},
+              {desc:'Monthly Charge – Feb 2026',   amt:'12,500 DZD', method:'Cash',         date:'Feb 5',      status:'paid'},
+            ].map(p=>`<tr>
+              <td style="font-weight:500">${p.desc}</td>
+              <td style="font-weight:700">${p.amt}</td>
+              <td style="color:var(--text-3)">${p.method}</td>
+              <td style="color:var(--text-3)">${p.date}</td>
+              <td><span class="tag ${p.status==='paid'?'tag-green':'tag-amber'}">${p.status}</span></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`,
+
+  /* ── RESIDENT: VOTES ──────────────────────────────────────── */
+  'res-votes': () => `
+    <div style="display:flex;flex-direction:column;gap:20px;padding:24px 28px">
+      <div class="vote-card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+          <span class="tag tag-green">Active · Closes Apr 7</span>
+          <span style="font-size:11px;color:var(--text-3)">Cast your vote</span>
+        </div>
+        <div class="vote-q">Should we install security cameras in the lobby and parking area?</div>
+        ${[{opt:'Yes, install cameras',pct:72},{opt:'No, too expensive',pct:17},{opt:'Only in parking',pct:11}].map(o=>`
+          <div class="vote-option" onclick="this.classList.toggle('voted')">
+            <span class="opt-label">${o.opt}</span>
+            <div class="opt-bar"><div class="fill" style="width:${o.pct}%"></div></div>
+            <span class="opt-pct">${o.pct}%</span>
+          </div>`).join('')}
+        <div style="margin-top:12px;font-size:11px;color:var(--text-3)">⏱ Closes in 7 days · 18/22 residents voted</div>
+      </div>
+    </div>`,
+
+  /* ── GARDIEN: HOME ────────────────────────────────────────── */
+  'grd-home': () => `
+    <div style="display:flex;flex-direction:column;gap:20px;padding:24px 28px">
+      <div class="overview-banner" style="background:linear-gradient(120deg,#1B4332,#166534,#064E3B)">
+        <div>
+          <div class="greet">Good morning 👋</div>
+          <div class="greet-name">Hassan Meftah</div>
+          <div class="greet-sub">2 tasks in progress · 1 awaiting approval</div>
+        </div>
+        <div class="banner-stats">
+          <div class="bstat"><div class="bval">6</div><div class="blabel">Assigned</div></div>
+          <div class="bstat"><div class="bval">2</div><div class="blabel">In Progress</div></div>
+          <div class="bstat"><div class="bval">12</div><div class="blabel">Completed</div></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+        ${[
+          {title:'Fix elevator door',    loc:'Les Pins · Floor 1',  prio:'urgent', status:'in_progress', steps:2, total:5, due:'Today'},
+          {title:'Clean rooftop terrace',loc:'Les Pins · Rooftop',  prio:'medium', status:'submitted',   steps:5, total:5, due:'Apr 3'},
+          {title:'Paint stairwell B',    loc:'Atlas · Block B',     prio:'low',    status:'pending',     steps:0, total:5, due:'Apr 8'},
+        ].map(t=>`
+          <div class="gtask-card">
+            <div class="gtask-head">
+              <div class="gtask-icon" style="background:${t.prio==='urgent'?'var(--danger-50)':t.prio==='medium'?'var(--warning-50)':'var(--success-50)'}">
+                <span style="font-size:18px">${t.prio==='urgent'?'🚨':t.prio==='medium'?'🔧':'🎨'}</span>
+              </div>
+              <div style="flex:1">
+                <div class="gtask-title">${t.title}</div>
+                <div class="gtask-loc">📍 ${t.loc}</div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-bottom:4px">
+                <span>Progress</span><span>${t.steps}/${t.total} steps</span>
+              </div>
+              <div class="status-bar">
+                ${Array.from({length:t.total},(_,i)=>`<div class="status-step ${i<t.steps?'done':i===t.steps&&t.status==='in_progress'?'active':''}"></div>`).join('')}
+              </div>
+            </div>
+            <div class="gtask-footer">
+              <span class="tag ${t.status==='in_progress'?'tag-blue':t.status==='submitted'?'tag-cyan':'tag-slate'}">${t.status.replace('_',' ')}</span>
+              <span style="font-size:11px;color:var(--text-3)">Due: ${t.due}</span>
+            </div>
+          </div>`).join('')}
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>All Assigned Tasks</h3></div>
+        <table>
+          <thead><tr><th>Task</th><th>Building</th><th>Priority</th><th>Due Date</th><th>Status</th></tr></thead>
+          <tbody>
+            ${[
+              {title:'Fix elevator door',     bld:'Les Pins', prio:'urgent', due:'Today',  status:'in_progress'},
+              {title:'Clean rooftop terrace', bld:'Les Pins', prio:'medium', due:'Apr 3',  status:'submitted'},
+              {title:'Paint stairwell B',     bld:'Atlas',    prio:'low',    due:'Apr 8',  status:'pending'},
+              {title:'Fix water pump',        bld:'Les Pins', prio:'urgent', due:'Apr 2',  status:'in_progress'},
+              {title:'Replace lobby bulbs',   bld:'Atlas',    prio:'medium', due:'Apr 5',  status:'assigned'},
+              {title:'Trim garden hedges',    bld:'Les Pins', prio:'low',    due:'Apr 10', status:'pending'},
+            ].map(t=>`<tr>
+              <td style="font-weight:600">${t.title}</td>
+              <td style="color:var(--text-2)">${t.bld}</td>
+              <td><span class="tag ${t.prio==='urgent'?'tag-red':t.prio==='medium'?'tag-amber':'tag-slate'}">${t.prio}</span></td>
+              <td style="color:var(--text-3)">${t.due}</td>
+              <td><span class="tag ${t.status==='in_progress'?'tag-blue':t.status==='submitted'?'tag-cyan':t.status==='assigned'?'tag-purple':'tag-slate'}">${t.status.replace('_',' ')}</span></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`,
+
+  /* ── GARDIEN: PHOTO UPLOAD ────────────────────────────────── */
+  'grd-photo': () => `
+    <div style="display:flex;flex-direction:column;gap:20px;padding:24px 28px">
+      <div class="card" style="max-width:640px">
+        <div class="card-head">
+          <h3>Upload Task Photos</h3>
+          <span class="tag tag-blue">Fix elevator door</span>
+        </div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
+
+          <div style="background:var(--warning-50);border:1px solid var(--warning);border-radius:var(--radius-md);padding:12px 14px;font-size:12px;color:#92400E">
+            ⚠️ <strong>Photo requirements:</strong> Images must be clear (not blurry), well-lit, and show real progress. Similar before/after photos will be rejected.
+          </div>
+
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em">Before Photos</div>
+            <div class="photo-thumbs" style="margin-bottom:10px">
+              <div class="photo-thumb" style="background:linear-gradient(135deg,#1E3A5F,#2563EB)">
+                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.7);font-size:24px">🛗</div>
+                <div class="thumb-label">Before · ✓ Clear</div>
+              </div>
+            </div>
+            <div class="photo-zone">
+              <div class="upload-icon">📷</div>
+              <div class="upload-text">Tap to add before photo</div>
+              <div class="upload-sub">JPG, PNG · Max 10MB</div>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em">Progress Photos</div>
+            <div class="photo-zone">
+              <div class="upload-icon">🔨</div>
+              <div class="upload-text">Add progress photos (optional)</div>
+              <div class="upload-sub">Shows work in progress</div>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em">After Photos</div>
+            <div class="photo-zone">
+              <div class="upload-icon">✅</div>
+              <div class="upload-text">Add after photo to prove completion</div>
+              <div class="upload-sub">Required before submitting for approval</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;padding-top:8px;border-top:1px solid var(--border)">
+            <button class="btn btn-ghost" style="flex:1">Save Draft</button>
+            <button class="btn btn-primary" style="flex:2">Submit for Approval →</button>
+          </div>
+        </div>
+      </div>
+    </div>`,
+
+  /* ── SYNDIC: CHARGES ──────────────────────────────────────── */
+  'charges': () => `
+    <div style="display:flex;flex-direction:column;gap:20px;padding:24px 28px">
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-primary">+ Issue Charge</button>
+        <button class="btn btn-ghost">Send Reminders</button>
+      </div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        ${[
+          {label:'Total Charged (April)',  val:'284,000 DZD', tag:'tag-blue'},
+          {label:'Collected',              val:'246,500 DZD', tag:'tag-green'},
+          {label:'Overdue',                val:'37,500 DZD',  tag:'tag-red'},
+        ].map(s=>`<div class="stat-card"><div class="value" style="font-size:22px">${s.val}</div><div class="label">${s.label}</div></div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Charges — April 2026</h3></div>
+        <table>
+          <thead><tr><th>Apartment</th><th>Resident</th><th>Amount</th><th>Category</th><th>Due Date</th><th>Status</th></tr></thead>
+          <tbody>
+            ${[
+              {apt:'Apt 1A', res:'Omar B.',   amt:'12,500', cat:'Monthly', due:'Apr 10', status:'paid'},
+              {apt:'Apt 2B', res:'Sara K.',   amt:'12,500', cat:'Monthly', due:'Apr 10', status:'paid'},
+              {apt:'Apt 3C', res:'Youcef M.', amt:'12,500', cat:'Monthly', due:'Apr 10', status:'pending'},
+              {apt:'Apt 4B', res:'Amira K.',  amt:'12,500', cat:'Monthly', due:'Apr 10', status:'pending'},
+              {apt:'Apt 5D', res:'Nabil R.',  amt:'12,500', cat:'Monthly', due:'Mar 31', status:'overdue'},
+              {apt:'Apt 6A', res:'Leila H.',  amt:'4,000',  cat:'Maintenance',due:'Apr 5',status:'paid'},
+            ].map(c=>`<tr>
+              <td style="font-weight:600">${c.apt}</td>
+              <td>${c.res}</td>
+              <td style="font-weight:700">${c.amt} DZD</td>
+              <td><span class="tag tag-slate">${c.cat}</span></td>
+              <td style="color:var(--text-3)">${c.due}</td>
+              <td><span class="tag ${c.status==='paid'?'tag-green':c.status==='overdue'?'tag-red':'tag-amber'}">${c.status}</span></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`,
+
+  /* ── BUILDINGS ────────────────────────────────────────────── */
+  'buildings': () => `
+    <div style="display:flex;flex-direction:column;gap:20px;padding:24px 28px">
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-primary">+ Add Building</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px">
+        ${[
+          {name:'Résidence Les Pins',  addr:'12 Rue Didouche Mourad, Alger',  units:24, occ:22, rev:'284,000',caretakers:2, color:'#2563EB'},
+          {name:'Résidence Atlas',     addr:'8 Avenue de l\'ALN, Constantine', units:16, occ:14, rev:'192,000',caretakers:1, color:'#0891B2'},
+        ].map(b=>`
+          <div class="card" style="cursor:pointer">
+            <div style="background:${b.color};height:8px;border-radius:var(--radius-lg) var(--radius-lg) 0 0"></div>
+            <div style="padding:18px 20px">
+              <div style="font-size:15px;font-weight:700;margin-bottom:4px">${b.name}</div>
+              <div style="font-size:12px;color:var(--text-3);margin-bottom:16px">📍 ${b.addr}</div>
+              <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
+                ${[
+                  {l:'Apartments',v:`${b.occ}/${b.units} occupied`},
+                  {l:'Monthly Revenue',v:`${b.rev} DZD`},
+                  {l:'Occupancy',v:`${Math.round(b.occ/b.units*100)}%`},
+                  {l:'Caretakers',v:`${b.caretakers} assigned`},
+                ].map(s=>`<div style="background:var(--bg);border-radius:var(--radius-md);padding:10px 12px"><div style="font-size:11px;color:var(--text-3)">${s.l}</div><div style="font-size:14px;font-weight:700;margin-top:3px">${s.v}</div></div>`).join('')}
+              </div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`,
+
+};
+
+/* ── INIT ─────────────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', () => {
+  setRole('syndic');
+});
+</script>
+</body>
+</html>
