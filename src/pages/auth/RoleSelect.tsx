@@ -1,0 +1,126 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuthStore } from '../../store/authStore'
+
+type Role = 'syndic' | 'resident' | 'gardien'
+
+const ROLES: { id: Role; icon: string; title: string; desc: string }[] = [
+  { id: 'syndic',   icon: 'business_center', title: 'Syndic',   desc: 'Manage community affairs and finances' },
+  { id: 'resident', icon: 'home',            title: 'Resident', desc: 'Access your home details and services' },
+  { id: 'gardien',  icon: 'security',        title: 'Gardien',  desc: 'Monitor facility safety and access' },
+]
+
+export default function RoleSelect() {
+  const [selected, setSelected] = useState<Role>('resident')
+  const navigate = useNavigate()
+  const { isAuthenticated, role } = useAuthStore()
+
+  // If already authenticated redirect immediately
+  if (isAuthenticated && role) {
+    navigate(`/${role}`, { replace: true })
+    return null
+  }
+
+  return (
+    <div className="bg-surface text-on-surface font-body min-h-screen flex flex-col">
+      {/* Background blobs */}
+      <div className="fixed top-0 right-0 -z-10 w-1/3 h-1/2 bg-primary-container/5 rounded-bl-full blur-[120px]" />
+      <div className="fixed bottom-0 left-0 -z-10 w-1/4 h-1/3 bg-tertiary-container/5 rounded-tr-full blur-[100px]" />
+
+      {/* Header */}
+      <header className="w-full flex justify-center pt-12 pb-8">
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-3xl font-black text-primary tracking-tighter font-headline">Darouna</span>
+          <div className="h-1 w-8 bg-gradient-to-r from-[#064E3B] to-[#10B981] rounded-full" />
+        </div>
+      </header>
+
+      <main className="flex-grow flex flex-col items-center justify-center px-6 max-w-4xl mx-auto w-full">
+        {/* Headline */}
+        <div className="text-center mb-16 space-y-3">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-on-background font-headline tracking-tight">
+            Welcome to Darouna
+          </h1>
+          <p className="text-on-surface-variant font-medium text-lg">
+            Please select your role to continue to your sanctuary
+          </p>
+        </div>
+
+        {/* Role Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+          {ROLES.map((r) =>
+            r.id === selected ? (
+              <button
+                key={r.id}
+                onClick={() => setSelected(r.id)}
+                className="relative flex flex-col items-center justify-center p-8 bg-gradient-to-br from-[#064E3B] to-[#10B981] rounded-xl shadow-2xl shadow-emerald-900/20 transform scale-105 z-10 glass-glow overflow-hidden"
+              >
+                <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
+                <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center mb-6 text-white">
+                  <span
+                    className="material-symbols-outlined text-3xl"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    {r.icon}
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold font-headline text-white">{r.title}</h3>
+                <p className="text-sm text-white/80 mt-2 text-center">{r.desc}</p>
+                <div className="mt-6 px-4 py-1 bg-white/20 backdrop-blur-md rounded-full border border-white/30">
+                  <span className="text-[10px] uppercase tracking-widest font-bold text-white">
+                    Current Selection
+                  </span>
+                </div>
+              </button>
+            ) : (
+              <button
+                key={r.id}
+                onClick={() => setSelected(r.id)}
+                className="group relative flex flex-col items-center justify-center p-8 bg-surface-container-lowest rounded-xl ambient-depth border border-outline-variant/10 hover:border-primary-container/30 transition-all duration-300 transform hover:-translate-y-1"
+              >
+                <div className="w-16 h-16 rounded-full bg-surface-container-low flex items-center justify-center mb-6 text-primary">
+                  <span className="material-symbols-outlined text-3xl">{r.icon}</span>
+                </div>
+                <h3 className="text-xl font-bold font-headline text-on-surface">{r.title}</h3>
+                <p className="text-sm text-on-surface-variant mt-2 text-center">{r.desc}</p>
+              </button>
+            )
+          )}
+        </div>
+
+        {/* CTA */}
+        <div className="mt-20 w-full max-w-sm">
+          <button
+            onClick={() => navigate(`/login/${selected}`)}
+            className="w-full py-4 px-6 bg-gradient-to-r from-[#064E3B] to-[#10B981] text-white font-bold rounded-xl shadow-lg shadow-emerald-900/20 glass-glow hover:brightness-110 transition-all duration-300 flex items-center justify-center gap-3"
+          >
+            Continue as {ROLES.find((r) => r.id === selected)?.title}
+            <span className="material-symbols-outlined">arrow_forward</span>
+          </button>
+          <div className="flex items-center justify-center mt-8 gap-4">
+            <div className="h-[1px] flex-grow bg-outline-variant/20" />
+            <span className="text-xs uppercase tracking-widest font-bold text-on-surface-variant/50">
+              Need Help?
+            </span>
+            <div className="h-[1px] flex-grow bg-outline-variant/20" />
+          </div>
+          <p className="text-center mt-6 text-sm font-medium text-on-surface-variant">
+            First time here?{' '}
+            <button
+              onClick={() => navigate(`/register/${selected}`)}
+              className="text-primary font-bold hover:underline"
+            >
+              Create an account
+            </button>
+          </p>
+        </div>
+      </main>
+
+      <footer className="w-full py-10 px-6 text-center">
+        <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-on-surface-variant/40">
+          © 2024 Darouna Digital Properties. Premium Living Refined.
+        </p>
+      </footer>
+    </div>
+  )
+}
