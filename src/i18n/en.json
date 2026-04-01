@@ -1,0 +1,39 @@
+{
+  "app": { "name": "Darouna" },
+  "roles": {
+    "syndic": "Syndic",
+    "resident": "Resident",
+    "gardien": "Gardien"
+  },
+  "auth": {
+    "welcome": "Welcome to Darouna",
+    "selectRole": "Please select your role to continue to your sanctuary",
+    "continueAs": "Continue as {{role}}",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full Name",
+    "phone": "Phone",
+    "login": "Sign In",
+    "register": "Create Account",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?"
+  },
+  "nav": {
+    "dash": "Dash",
+    "units": "Units",
+    "fix": "Fix",
+    "cash": "Cash",
+    "home": "Home",
+    "properties": "Properties",
+    "ledger": "Ledger",
+    "support": "Support",
+    "tasks": "Tasks",
+    "finance": "Finance",
+    "menu": "Menu"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "comingSoon": "Coming soon"
+  }
+}

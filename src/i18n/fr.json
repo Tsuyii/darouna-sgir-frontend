@@ -1,0 +1,39 @@
+{
+  "app": { "name": "Darouna" },
+  "roles": {
+    "syndic": "Syndic",
+    "resident": "Résident",
+    "gardien": "Gardien"
+  },
+  "auth": {
+    "welcome": "Bienvenue sur Darouna",
+    "selectRole": "Sélectionnez votre rôle pour accéder à votre espace",
+    "continueAs": "Continuer en tant que {{role}}",
+    "email": "Email",
+    "password": "Mot de passe",
+    "name": "Nom complet",
+    "phone": "Téléphone",
+    "login": "Connexion",
+    "register": "Créer un compte",
+    "noAccount": "Pas de compte ?",
+    "haveAccount": "Déjà un compte ?"
+  },
+  "nav": {
+    "dash": "Accueil",
+    "units": "Unités",
+    "fix": "Réparations",
+    "cash": "Finances",
+    "home": "Accueil",
+    "properties": "Propriétés",
+    "ledger": "Relevé",
+    "support": "Support",
+    "tasks": "Tâches",
+    "finance": "Finance",
+    "menu": "Menu"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue",
+    "comingSoon": "Bientôt disponible"
+  }
+}
