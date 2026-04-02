@@ -1,0 +1,4 @@
+_extracted/
+*.zip
+dist/
+darouna-frontend/
