@@ -13,12 +13,14 @@ const ROLES: { id: Role; icon: string; title: string; desc: string }[] = [
 export default function RoleSelect() {
   const [selected, setSelected] = useState<Role>('resident')
   const navigate = useNavigate()
-  const { isAuthenticated, role } = useAuthStore()
+  const { isAuthenticated, role, isLoading, logout } = useAuthStore()
 
-  // If already authenticated redirect immediately
-  if (isAuthenticated && role) {
-    navigate(`/${role}`, { replace: true })
-    return null
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-surface">
+        <span className="material-symbols-outlined text-primary text-4xl animate-spin">progress_activity</span>
+      </div>
+    )
   }
 
   return (
@@ -36,6 +38,34 @@ export default function RoleSelect() {
       </header>
 
       <main className="flex-grow flex flex-col items-center justify-center px-6 max-w-4xl mx-auto w-full">
+
+        {/* Already logged in banner */}
+        {isAuthenticated && role && (
+          <div className="w-full max-w-sm mb-10 bg-primary/5 border border-primary/10 rounded-2xl p-4 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-primary">account_circle</span>
+              <div>
+                <p className="text-xs font-bold text-on-surface">You're signed in as <span className="text-primary capitalize">{role}</span></p>
+                <p className="text-[10px] text-on-surface-variant">Go back or sign in with a different account</p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1.5 shrink-0">
+              <button
+                onClick={() => navigate(`/${role}`, { replace: true })}
+                className="text-[10px] font-bold text-primary hover:underline whitespace-nowrap"
+              >
+                Go to dashboard
+              </button>
+              <button
+                onClick={() => logout()}
+                className="text-[10px] font-bold text-error hover:underline"
+              >
+                Sign out
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Headline */}
         <div className="text-center mb-16 space-y-3">
           <h1 className="text-4xl md:text-5xl font-extrabold text-on-background font-headline tracking-tight">

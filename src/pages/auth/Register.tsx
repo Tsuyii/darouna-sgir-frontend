@@ -22,17 +22,21 @@ export default function Register() {
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
+  const [passwordConfirm, setPasswordConfirm] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (password !== passwordConfirm) {
+      setError('Passwords do not match.')
+      return
+    }
     setError('')
     setLoading(true)
     try {
-      await authApi.register(name, email, password, phone, role ?? 'resident')
-      // Auto-login after successful registration
+      await authApi.register(name, email, password, passwordConfirm, phone, role ?? 'resident')
       await login(email, password)
       navigate(`/${role}`, { replace: true })
     } catch (err: any) {
@@ -89,13 +93,9 @@ export default function Register() {
         <form onSubmit={handleSubmit} className="w-full space-y-4">
           {/* Full Name */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-              Full Name
-            </label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Full Name</label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-xl text-on-surface-variant/50">
-                person
-              </span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-xl text-on-surface-variant/50">person</span>
               <input
                 type="text"
                 value={name}
@@ -109,13 +109,9 @@ export default function Register() {
 
           {/* Email */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-              Email Address
-            </label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Email Address</label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-xl text-on-surface-variant/50">
-                mail
-              </span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-xl text-on-surface-variant/50">mail</span>
               <input
                 type="email"
                 value={email}
@@ -129,13 +125,9 @@ export default function Register() {
 
           {/* Phone */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-              Phone Number
-            </label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Phone Number</label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-xl text-on-surface-variant/50">
-                phone
-              </span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-xl text-on-surface-variant/50">phone</span>
               <input
                 type="tel"
                 value={phone}
@@ -148,13 +140,9 @@ export default function Register() {
 
           {/* Password */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-              Password
-            </label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Password</label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-xl text-on-surface-variant/50">
-                lock
-              </span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-xl text-on-surface-variant/50">lock</span>
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
@@ -169,10 +157,24 @@ export default function Register() {
                 onClick={() => setShowPassword((v) => !v)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 hover:text-on-surface-variant transition-colors"
               >
-                <span className="material-symbols-outlined text-xl">
-                  {showPassword ? 'visibility_off' : 'visibility'}
-                </span>
+                <span className="material-symbols-outlined text-xl">{showPassword ? 'visibility_off' : 'visibility'}</span>
               </button>
+            </div>
+          </div>
+
+          {/* Confirm Password */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Confirm Password</label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-xl text-on-surface-variant/50">lock_reset</span>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={passwordConfirm}
+                onChange={(e) => setPasswordConfirm(e.target.value)}
+                required
+                placeholder="Repeat your password"
+                className="w-full pl-12 pr-4 py-4 bg-surface-container-lowest rounded-xl border border-outline-variant/20 focus:border-primary/40 focus:outline-none text-on-surface placeholder:text-on-surface-variant/40 font-medium transition-colors ambient-depth"
+              />
             </div>
           </div>
 

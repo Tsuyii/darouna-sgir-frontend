@@ -26,8 +26,8 @@ export const authApi = {
   login: (email: string, password: string) =>
     api.post<ApiResponse<LoginResponse>>('/api/v1/auth/login', { email, password }),
 
-  register: (name: string, email: string, password: string, phone: string, role: string) =>
-    api.post<ApiResponse<LoginResponse>>('/api/v1/auth/register', { name, email, password, phone, role }),
+  register: (name: string, email: string, password: string, passwordConfirm: string, phone: string, role: string) =>
+    api.post<ApiResponse<LoginResponse>>('/api/v1/auth/register', { name, email, password, passwordConfirm, phone, role }),
 
   logout: (refreshToken: string) =>
     api.post('/api/v1/auth/logout', { refreshToken }),
