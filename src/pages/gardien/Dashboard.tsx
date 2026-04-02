@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../lib/api'
+import { MOCK, mockGardien } from '../../lib/mockData'
 
 interface TaskStats {
   total: number
@@ -15,7 +16,12 @@ export default function GardienDashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    api.get('/api/tasks/stats')
+    if (MOCK) {
+      setStats(mockGardien.stats)
+      setLoading(false)
+      return
+    }
+    api.get('/api/v1/tasks/stats')
       .then((res) => setStats(res.data.data))
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -80,7 +86,7 @@ export default function GardienDashboard() {
         <div className="relative h-44 rounded-2xl overflow-hidden shadow-lg bg-gradient-to-br from-[#064E3B] to-[#10B981]">
           <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 to-transparent" />
           <div className="absolute bottom-4 left-4 right-4 glass-card p-4 rounded-xl">
-            <h4 className="font-headline text-base font-bold text-emerald-950">Residence Al-Andalus</h4>
+            <h4 className="font-headline text-base font-bold text-emerald-950">Résidence Al-Andalus</h4>
             <p className="font-body text-xs text-on-surface-variant mt-0.5">Scheduled maintenance active today</p>
           </div>
         </div>

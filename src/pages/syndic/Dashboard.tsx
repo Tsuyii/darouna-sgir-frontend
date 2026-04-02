@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../lib/api'
+import { MOCK, mockSyndic } from '../../lib/mockData'
 
 interface BuildingStats {
   totalUnits: number
@@ -54,9 +55,16 @@ export default function SyndicDashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (MOCK) {
+      setBuilding(mockSyndic.building)
+      setStats(mockSyndic.stats)
+      setTasks(mockSyndic.tasks)
+      setLoading(false)
+      return
+    }
     async function load() {
       try {
-        const buildingsRes = await api.get('/api/buildings')
+        const buildingsRes = await api.get('/api/v1/buildings')
         const buildings: Building[] = buildingsRes.data.data ?? []
         if (buildings.length === 0) { setLoading(false); return }
 
@@ -64,8 +72,8 @@ export default function SyndicDashboard() {
         setBuilding(first)
 
         const [statsRes, tasksRes] = await Promise.all([
-          api.get(`/api/buildings/${first.id}/stats`),
-          api.get('/api/tasks'),
+          api.get(`/api/v1/buildings/${first.id}/stats`),
+          api.get('/api/v1/tasks'),
         ])
         setStats(statsRes.data.data)
         const allTasks: Task[] = tasksRes.data.data ?? []

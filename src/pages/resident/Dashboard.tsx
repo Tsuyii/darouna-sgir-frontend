@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import api from '../../lib/api'
+import { MOCK, mockResident } from '../../lib/mockData'
 
 interface Charge {
   id: string
@@ -28,11 +29,17 @@ export default function ResidentDashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (MOCK) {
+      setCharges(mockResident.charges)
+      setAnnouncements(mockResident.announcements)
+      setLoading(false)
+      return
+    }
     async function load() {
       try {
         const [chargesRes, announcementsRes] = await Promise.all([
-          api.get('/api/charges'),
-          api.get('/api/announcements'),
+          api.get('/api/v1/charges'),
+          api.get('/api/v1/announcements'),
         ])
         setCharges(chargesRes.data.data ?? [])
         setAnnouncements((announcementsRes.data.data ?? []).slice(0, 3))
@@ -89,9 +96,9 @@ export default function ResidentDashboard() {
       <section className="grid grid-cols-2 gap-4">
         {[
           { icon: 'key',            bg: 'bg-primary-fixed/30',          text: 'text-primary',    label: 'Access Codes',  value: 'Active' },
-          { icon: 'water_drop',     bg: 'bg-tertiary-container/20',     text: 'text-tertiary',   label: 'Water Usage',   value: '—' },
-          { icon: 'local_shipping', bg: 'bg-secondary-container/50',    text: 'text-secondary',  label: 'Deliveries',    value: '—' },
-          { icon: 'engineering',    bg: 'bg-error-container/40',        text: 'text-error',      label: 'Tickets',       value: '—' },
+          { icon: 'water_drop',     bg: 'bg-tertiary-container/20',     text: 'text-tertiary',   label: 'Water Usage',   value: 'Normal' },
+          { icon: 'local_shipping', bg: 'bg-secondary-container/50',    text: 'text-secondary',  label: 'Deliveries',    value: '2 today' },
+          { icon: 'engineering',    bg: 'bg-error-container/40',        text: 'text-error',      label: 'Tickets',       value: '1 open' },
         ].map((item) => (
           <div key={item.label} className="bg-surface-container-lowest p-5 rounded-xl ambient-depth space-y-3">
             <div className={`w-10 h-10 rounded-lg ${item.bg} flex items-center justify-center ${item.text}`}>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import api from '../../lib/api'
+import { MOCK, mockGardien } from '../../lib/mockData'
 
 interface Task {
   id: string
@@ -25,7 +26,12 @@ export default function GardienTasks() {
   const [updating, setUpdating] = useState<string | null>(null)
 
   useEffect(() => {
-    api.get('/api/tasks/gardien')
+    if (MOCK) {
+      setTasks(mockGardien.tasks as Task[])
+      setLoading(false)
+      return
+    }
+    api.get('/api/v1/tasks/gardien')
       .then((res) => setTasks(res.data.data ?? []))
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -34,7 +40,7 @@ export default function GardienTasks() {
   async function startTask(id: string) {
     setUpdating(id)
     try {
-      await api.put(`/api/tasks/${id}/status`, { status: 'in_progress' })
+      await api.put(`/api/v1/tasks/${id}/status`, { status: 'in_progress' })
       setTasks((prev) => prev.map((t) => t.id === id ? { ...t, status: 'in_progress' } : t))
     } catch { /* ignore */ } finally { setUpdating(null) }
   }
@@ -42,7 +48,7 @@ export default function GardienTasks() {
   async function submitTask(id: string) {
     setUpdating(id)
     try {
-      await api.post(`/api/tasks/${id}/submit`)
+      await api.post(`/api/v1/tasks/${id}/submit`)
       setTasks((prev) => prev.map((t) => t.id === id ? { ...t, status: 'submitted' } : t))
     } catch { /* ignore */ } finally { setUpdating(null) }
   }
