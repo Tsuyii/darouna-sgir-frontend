@@ -30,3 +30,7 @@ _extracted/
 *.njsproj
 *.sln
 *.sw?
+
+# Git worktrees
+.worktrees/
+.vercel
