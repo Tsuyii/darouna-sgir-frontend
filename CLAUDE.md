@@ -12,7 +12,7 @@ Système de Gestion Immobilière Résidentielle — Mobile-first PWA for residen
 - **Zustand** — auth & global state
 - **Axios** — API client with JWT interceptors + refresh logic
 - **react-i18next** — Arabic (RTL), French, English
-- **Workbox** (via vite-plugin-pwa) — PWA service worker
+- **PWA** — manifest + icons (vite-plugin-pwa removed, incompatible with Vite 8)
 
 ---
 
@@ -234,6 +234,9 @@ Nav container:
 
 **Base URL:** `VITE_API_URL` env variable (e.g., `http://localhost:5000`)
 
+> **Important:** All API routes are prefixed `/api/v1/` (not `/api/`).
+> e.g., `POST /api/v1/auth/login`, `GET /api/v1/buildings`
+
 All requests: `Authorization: Bearer <accessToken>`
 
 **Response envelope:**
@@ -250,101 +253,101 @@ All requests: `Authorization: Bearer <accessToken>`
 ### Auth Endpoints
 
 ```
-POST   /api/auth/register         { name, email, password, phone, role }
-POST   /api/auth/login            { email, password } → { accessToken, refreshToken, user }
-POST   /api/auth/logout           { refreshToken }
-POST   /api/auth/refresh-token    { refreshToken } → { accessToken }
-GET    /api/auth/me               → { user }
-POST   /api/auth/change-password  { currentPassword, newPassword }
+POST   /api/v1/auth/register         { name, email, password, phone, role }
+POST   /api/v1/auth/login            { email, password } → { accessToken, refreshToken, user }
+POST   /api/v1/auth/logout           { refreshToken }
+POST   /api/v1/auth/refresh-token    { refreshToken } → { accessToken }
+GET    /api/v1/auth/me               → { user }
+POST   /api/v1/auth/change-password  { currentPassword, newPassword }
 ```
 
 **Token strategy:**
 - Access token: 15 min, stored in memory (Zustand)
 - Refresh token: 7 days, stored in `localStorage`
 - On 401, auto-retry with `/api/auth/refresh-token`
-- On logout, call `/api/auth/logout` to blacklist
+- On logout, call `/api/v1/auth/logout` to blacklist
 
 ### Key Endpoints by Feature
 
 ```
 # Buildings (Syndic)
-GET    /api/buildings
-POST   /api/buildings
-GET    /api/buildings/:id
-PUT    /api/buildings/:id
-DELETE /api/buildings/:id
-POST   /api/buildings/:id/assign-gardien
-GET    /api/buildings/:id/stats       → { totalUnits, occupancy%, revenue, openTasks }
+GET    /api/v1/buildings
+POST   /api/v1/buildings
+GET    /api/v1/buildings/:id
+PUT    /api/v1/buildings/:id
+DELETE /api/v1/buildings/:id
+POST   /api/v1/buildings/:id/assign-gardien
+GET    /api/v1/buildings/:id/stats       → { totalUnits, occupancy%, revenue, openTasks }
 
 # Apartments (Syndic)
-GET    /api/apartments
-POST   /api/apartments
-GET    /api/apartments/:id
-PUT    /api/apartments/:id
-DELETE /api/apartments/:id
-POST   /api/apartments/:id/assign-resident
-DELETE /api/apartments/:id/unassign-resident
+GET    /api/v1/apartments
+POST   /api/v1/apartments
+GET    /api/v1/apartments/:id
+PUT    /api/v1/apartments/:id
+DELETE /api/v1/apartments/:id
+POST   /api/v1/apartments/:id/assign-resident
+DELETE /api/v1/apartments/:id/unassign-resident
 
 # Tasks
-POST   /api/tasks                     (Syndic creates)
-GET    /api/tasks                     (Syndic: all tasks)
-GET    /api/tasks/gardien             (Gardien: my tasks)
-GET    /api/tasks/stats
-POST   /api/tasks/:id/assign          { gardienId }
-PUT    /api/tasks/:id/status          { status }
-POST   /api/tasks/:id/submit          (Gardien submits for approval)
-POST   /api/tasks/:id/approve         { approved: bool, reason? }
+POST   /api/v1/tasks                     (Syndic creates)
+GET    /api/v1/tasks                     (Syndic: all tasks)
+GET    /api/v1/tasks/gardien             (Gardien: my tasks)
+GET    /api/v1/tasks/stats
+POST   /api/v1/tasks/:id/assign          { gardienId }
+PUT    /api/v1/tasks/:id/status          { status }
+POST   /api/v1/tasks/:id/submit          (Gardien submits for approval)
+POST   /api/v1/tasks/:id/approve         { approved: bool, reason? }
 
 # Charges (Syndic issues, Resident reads)
-POST   /api/charges
-GET    /api/charges
-GET    /api/charges/:id
-GET    /api/charges/apartment/:apartmentId
-GET    /api/charges/overdue
-PUT    /api/charges/:id
-DELETE /api/charges/:id
+POST   /api/v1/charges
+GET    /api/v1/charges
+GET    /api/v1/charges/:id
+GET    /api/v1/charges/apartment/:apartmentId
+GET    /api/v1/charges/overdue
+PUT    /api/v1/charges/:id
+DELETE /api/v1/charges/:id
 
 # Payments
-POST   /api/payments                  { chargeId, method, amount }
-GET    /api/payments
-GET    /api/payments/:id
-POST   /api/payments/:id/confirm      (Syndic confirms offline)
-GET    /api/payments/apartment/:apartmentId
-GET    /api/payments/resident/history
+POST   /api/v1/payments                  { chargeId, method, amount }
+GET    /api/v1/payments
+GET    /api/v1/payments/:id
+POST   /api/v1/payments/:id/confirm      (Syndic confirms offline)
+GET    /api/v1/payments/apartment/:apartmentId
+GET    /api/v1/payments/resident/history
 
 # Announcements
-GET    /api/announcements
-POST   /api/announcements
-GET    /api/announcements/:id
-PUT    /api/announcements/:id
-DELETE /api/announcements/:id
-POST   /api/announcements/:id/like
-POST   /api/announcements/:id/comment
-POST   /api/announcements/:id/view
+GET    /api/v1/announcements
+POST   /api/v1/announcements
+GET    /api/v1/announcements/:id
+PUT    /api/v1/announcements/:id
+DELETE /api/v1/announcements/:id
+POST   /api/v1/announcements/:id/like
+POST   /api/v1/announcements/:id/comment
+POST   /api/v1/announcements/:id/view
 
 # Votes
-GET    /api/votes
-POST   /api/votes
-GET    /api/votes/:id
-POST   /api/votes/:id/cast            { optionId }
-POST   /api/votes/:id/close
-GET    /api/votes/building/:buildingId
+GET    /api/v1/votes
+POST   /api/v1/votes
+GET    /api/v1/votes/:id
+POST   /api/v1/votes/:id/cast            { optionId }
+POST   /api/v1/votes/:id/close
+GET    /api/v1/votes/building/:buildingId
 
 # Complaints
-POST   /api/complaints
-GET    /api/complaints
-GET    /api/complaints/:id
-PUT    /api/complaints/:id
-POST   /api/complaints/:id/response   { message }
-POST   /api/complaints/:id/rate       { rating: 1-5 }
-GET    /api/complaints/stats
+POST   /api/v1/complaints
+GET    /api/v1/complaints
+GET    /api/v1/complaints/:id
+PUT    /api/v1/complaints/:id
+POST   /api/v1/complaints/:id/response   { message }
+POST   /api/v1/complaints/:id/rate       { rating: 1-5 }
+GET    /api/v1/complaints/stats
 
 # Notifications
-GET    /api/notifications
-GET    /api/notifications/unread-count
-PUT    /api/notifications/mark-all-read
-PUT    /api/notifications/:id/read
-PUT    /api/notifications/:id/archive
+GET    /api/v1/notifications
+GET    /api/v1/notifications/unread-count
+PUT    /api/v1/notifications/mark-all-read
+PUT    /api/v1/notifications/:id/read
+PUT    /api/v1/notifications/:id/archive
 ```
 
 ---
@@ -430,7 +433,9 @@ Located at `_extracted/stitch/stitch_resident_mobile_view/`:
 7. **Token refresh** — implement a single Axios interceptor that retries once on 401
 8. **Role guards** — unauthenticated users → `/`, wrong role → redirect to own dashboard
 9. **RTL** — `dir="rtl"` + `font-family: 'Noto Sans Arabic', sans-serif` when language is Arabic
-10. **PWA** — manifest + icons from `_extracted/manifest/`, service worker via vite-plugin-pwa
+10. **PWA** — manifest + icons from `_extracted/manifest/` (vite-plugin-pwa removed — incompatible with Vite 8)
+11. **TopAppBar** — avatar tap navigates to `/{role}` dashboard; logout is the `logout` icon button next to the notifications bell. Never put logout on the avatar tap.
+12. **Backend CORS** — `residence-app-backend/src/server.js` accepts any `darouna-frontend*.vercel.app` URL via regex. If adding a new domain, update the `allowedOrigins` array there.
 
 ---
 
@@ -439,7 +444,16 @@ Located at `_extracted/stitch/stitch_resident_mobile_view/`:
 ```bash
 # .env.local
 VITE_API_URL=http://localhost:5000
+VITE_MOCK_DATA=true   # set to 'true' to use mock data (bypasses live API calls)
 ```
+
+**Vercel production env vars** (set via `vercel env add`):
+- `VITE_API_URL` → `https://darouna-sgir-backend.onrender.com`
+- `VITE_MOCK_DATA` → `true` (enabled for demo/preview)
+
+> **Gotcha:** Vercel sometimes stores env values with a trailing `\n`. Always use
+> `printf 'value' | vercel env add NAME production` (not echo) to avoid this.
+> The mock flag check uses `.trim()` defensively: `VITE_MOCK_DATA?.trim() === 'true'`
 
 ---
 
@@ -467,19 +481,21 @@ npm run preview  # Preview build
 
 All features are fully implemented on the backend. Frontend only needs to call the APIs.
 
-| Feature | Backend | Frontend (Phase 1) |
-|---------|---------|-------------------|
-| Auth (login, register, refresh, logout) | ✅ | Build |
-| Role selection screen | — | Build |
-| Syndic home dashboard | ✅ API | Build |
-| Resident home dashboard | ✅ API | Placeholder |
-| Gardien task list | ✅ API | Placeholder |
-| Navigation shell (3 roles) | — | Build |
-| Buildings & apartments | ✅ | Phase 2 |
-| Task management | ✅ | Phase 2 |
-| Charges & payments | ✅ | Phase 2 |
-| Announcements | ✅ | Phase 2 |
-| Votes | ✅ | Phase 2 |
-| Complaints | ✅ | Phase 2 |
-| Notifications | ✅ | Phase 2 |
-| Budgets & reports | ✅ | Phase 3 |
+| Feature | Backend | Frontend |
+|---------|---------|---------|
+| Auth (login, register, refresh, logout) | ✅ | ✅ Done |
+| Role selection screen | — | ✅ Done |
+| Syndic home dashboard | ✅ | ✅ Done |
+| Resident home dashboard | ✅ | ✅ Done |
+| Gardien dashboard + task list | ✅ | ✅ Done |
+| Navigation shell (3 roles) | — | ✅ Done |
+| Buildings & apartments (Syndic Units) | ✅ | ✅ Done (Phase 2) |
+| Syndic Tasks (approve/reject) | ✅ | ⏳ Phase 2 next |
+| Syndic Finance (charges/payments) | ✅ | ⏳ Phase 2 next |
+| Resident Properties | ✅ | ⏳ Phase 2 next |
+| Resident Ledger (payment history) | ✅ | ⏳ Phase 2 next |
+| Resident Support (complaints) | ✅ | ⏳ Phase 2 next |
+| Announcements | ✅ | ⏳ Phase 2 next |
+| Votes | ✅ | ⏳ Phase 3 |
+| Notifications | ✅ | ⏳ Phase 3 |
+| Budgets & reports | ✅ | ⏳ Phase 3 |
