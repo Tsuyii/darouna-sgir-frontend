@@ -572,8 +572,9 @@ All features are fully implemented on the backend. Frontend only needs to call t
 | Announcements (Syndic create/delete + Resident read/like) | ✅ | ✅ Done |
 | Votes (Syndic create/close + Resident cast) | ✅ | ✅ Done |
 | Notifications panel (bell icon, all roles) | ✅ | ✅ Done |
-| Gardien Finance | ✅ | ⏳ Next session |
-| Budgets & reports | ✅ | ⏳ Next session |
+| Gardien Finance | ✅ | ✅ Done |
+| Gardien Menu (real content) | — | ✅ Done |
+| Budgets & reports (Syndic Finance section) | ✅ | ✅ Done |
 
 ---
 

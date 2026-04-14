@@ -200,6 +200,62 @@ export default function SyndicFinance() {
         )}
       </div>
 
+      {/* Budget Report */}
+      {!loading && charges.length > 0 && (() => {
+        const totalIssued   = charges.reduce((s, c) => s + c.amount, 0)
+        const totalCollected = charges.filter((c) => c.status === 'paid').reduce((s, c) => s + c.amount, 0)
+        const totalOverdue   = charges.filter((c) => c.status === 'overdue').reduce((s, c) => s + c.amount, 0)
+        const totalPending   = charges.filter((c) => c.status === 'pending').reduce((s, c) => s + c.amount, 0)
+        const collectionRate = totalIssued > 0 ? Math.round((totalCollected / totalIssued) * 100) : 0
+
+        return (
+          <div className="space-y-4">
+            <h3 className="font-headline text-xl font-bold text-on-surface">Budget Report</h3>
+
+            {/* Collection rate bar */}
+            <div className="bg-surface-container-lowest rounded-xl p-5 ambient-depth space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold text-on-surface">Collection Rate</p>
+                <p className="font-headline text-lg font-bold text-primary">{collectionRate}%</p>
+              </div>
+              <div className="w-full h-2.5 bg-surface-container-high rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-700"
+                  style={{
+                    width: `${collectionRate}%`,
+                    background: 'linear-gradient(to right, #064E3B, #10B981)',
+                  }}
+                />
+              </div>
+              <p className="text-xs text-on-surface-variant">
+                {totalCollected.toLocaleString()} MAD collected out of {totalIssued.toLocaleString()} MAD issued
+              </p>
+            </div>
+
+            {/* Breakdown */}
+            <div className="bg-surface-container-lowest rounded-xl p-5 ambient-depth">
+              <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">Breakdown</p>
+              <div>
+                {[
+                  { label: 'Total issued',  amount: totalIssued,    icon: 'receipt_long',    color: 'text-on-surface' },
+                  { label: 'Collected',     amount: totalCollected,  icon: 'check_circle',    color: 'text-tertiary' },
+                  { label: 'Pending',       amount: totalPending,    icon: 'schedule',        color: 'text-on-surface-variant' },
+                  { label: 'Overdue',       amount: totalOverdue,    icon: 'warning',         color: 'text-error' },
+                ].map((row) => (
+                  <div key={row.label} className="flex items-center justify-between py-3 border-b border-surface-container last:border-0">
+                    <div className="flex items-center gap-2">
+                      <span className={`material-symbols-outlined text-sm ${row.color}`}>{row.icon}</span>
+                      <span className="text-sm text-on-surface-variant">{row.label}</span>
+                    </div>
+                    <span className={`font-bold text-sm ${row.color}`}>{row.amount.toLocaleString()} MAD</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
       {/* FAB */}
       <button
         onClick={() => setShowModal(true)}

@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-04-14 — Gardien Finance, Gardien Menu, Budget Report
+
+### Added / Replaced
+- **`src/pages/gardien/Finance.tsx`** (replaced placeholder): Real work-summary page for the Gardien role. Hero shows tasks completed & approved this month. Stats grid: Approved / In Progress / Pending counts. Completed tasks list with date and approved badge. Monthly breakdown table (total assigned, approved, awaiting approval, in progress). Fetches from `GET /api/v1/tasks/gardien`; falls back to mock tasks when `VITE_MOCK_DATA=true`.
+- **`src/pages/gardien/Menu.tsx`** (replaced placeholder): Real profile & settings page. Shows avatar initials + name + email from Zustand auth store with "Caretaker" badge. Language switcher (Français / English / العربية) using react-i18next. Change Password accordion calling `POST /api/v1/auth/change-password` with success/error feedback. About section (app name, version, role).
+- **Budget Report section in `src/pages/syndic/Finance.tsx`**: Appended below the charges list. Computes collection rate from live charge data and renders a gradient progress bar. Breakdown table: Total issued, Collected, Pending, Overdue — all in MAD. Derived from the same charges array already loaded on the page (no extra API call).
+
+---
+
 ## 2026-04-01 — Phase 2: Buildings & Apartments
 
 ### Added
