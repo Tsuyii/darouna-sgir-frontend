@@ -436,7 +436,7 @@ Located at `_extracted/stitch/stitch_resident_mobile_view/`:
 9. **RTL** — `dir="rtl"` + `font-family: 'Noto Sans Arabic', sans-serif` when language is Arabic
 10. **PWA** — `public/manifest.json` + `public/icons/` are the live files. `theme_color` is `#2b6954`. Do not use vite-plugin-pwa (incompatible with Vite 8)
 11. **TopAppBar** — avatar tap navigates to `/{role}` dashboard; logout is the `logout` icon button next to the notifications bell. Never put logout on the avatar tap.
-12. **Backend CORS** — `residence-app-backend/src/server.js` accepts any `darouna-frontend*.vercel.app` URL via regex. If adding a new domain, update the `allowedOrigins` array there.
+12. **Backend CORS** — `residence-app-backend/src/server.js` accepts `darouna.vercel.app` and any `darouna-*.vercel.app` preview URL via regex. If adding a new domain, update the `allowedOrigins` array there.
 
 ---
 
@@ -485,7 +485,7 @@ npm run preview  # Preview build
 - After every session: `git add -A && git commit -m "[descriptive summary of what was built]" && git push`
 - Never leave uncommitted work at the end of a session
 - Commit messages should describe **what was built**, not what files were changed
-- Remote: `origin` → `https://github.com/Tsuyii/darouna-sgir-frontend`
+- Remote: `origin` → `https://github.com/Tsuyii/Darouna`
 - Always create or update CHANGELOG.md with today's date and a summary of what was built before the final commit
 
 ---
@@ -581,7 +581,7 @@ All features are fully implemented on the backend. Frontend only needs to call t
 ## QA Audit — 2026-04-03
 
 Full browser audit via Puppeteer (gstack/browse) against production:
-`https://darouna-frontend-git-main-dctsuyi3-7221s-projects.vercel.app`
+`https://darouna.vercel.app`
 
 ### Role: Syndic
 
