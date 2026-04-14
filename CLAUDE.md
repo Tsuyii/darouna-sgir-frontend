@@ -12,7 +12,7 @@ Système de Gestion Immobilière Résidentielle — Mobile-first PWA for residen
 - **Zustand** — auth & global state
 - **Axios** — API client with JWT interceptors + refresh logic
 - **react-i18next** — Arabic (RTL), French, English
-- **PWA** — manifest + icons (vite-plugin-pwa removed, incompatible with Vite 8)
+- **PWA** — `public/manifest.json` + `public/icons/` (10 sizes 48–512px). vite-plugin-pwa removed (incompatible with Vite 8); manifest served statically
 
 ---
 
@@ -434,7 +434,7 @@ Located at `_extracted/stitch/stitch_resident_mobile_view/`:
 7. **Token refresh** — implement a single Axios interceptor that retries once on 401
 8. **Role guards** — unauthenticated users → `/`, wrong role → redirect to own dashboard
 9. **RTL** — `dir="rtl"` + `font-family: 'Noto Sans Arabic', sans-serif` when language is Arabic
-10. **PWA** — manifest + icons from `_extracted/manifest/` (vite-plugin-pwa removed — incompatible with Vite 8)
+10. **PWA** — `public/manifest.json` + `public/icons/` are the live files. `theme_color` is `#2b6954`. Do not use vite-plugin-pwa (incompatible with Vite 8)
 11. **TopAppBar** — avatar tap navigates to `/{role}` dashboard; logout is the `logout` icon button next to the notifications bell. Never put logout on the avatar tap.
 12. **Backend CORS** — `residence-app-backend/src/server.js` accepts any `darouna-frontend*.vercel.app` URL via regex. If adding a new domain, update the `allowedOrigins` array there.
 
