@@ -239,24 +239,23 @@ export default function SyndicDashboard() {
 
       {/* Quick Actions */}
       <section className="grid grid-cols-2 gap-4">
-        <button
-          onClick={() => navigate('/syndic/finance')}
-          className="bg-surface-container-lowest p-6 rounded-2xl ambient-depth flex flex-col items-center justify-center gap-3 active:scale-95 transition-all group"
-        >
-          <div className="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
-            <span className="material-symbols-outlined text-emerald-800 text-3xl">payments</span>
-          </div>
-          <span className="font-body text-xs font-bold text-emerald-950 uppercase tracking-tight">Issue Charge</span>
-        </button>
-        <button
-          onClick={() => navigate('/syndic/tasks')}
-          className="bg-surface-container-lowest p-6 rounded-2xl ambient-depth flex flex-col items-center justify-center gap-3 active:scale-95 transition-all group"
-        >
-          <div className="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
-            <span className="material-symbols-outlined text-emerald-800 text-3xl">build_circle</span>
-          </div>
-          <span className="font-body text-xs font-bold text-emerald-950 uppercase tracking-tight">View Tasks</span>
-        </button>
+        {[
+          { label: 'Issue Charge',   icon: 'payments',      path: '/syndic/finance' },
+          { label: 'View Tasks',     icon: 'build_circle',  path: '/syndic/tasks' },
+          { label: 'Announcements',  icon: 'campaign',      path: '/syndic/announcements' },
+          { label: 'Votes',          icon: 'how_to_vote',   path: '/syndic/votes' },
+        ].map((a) => (
+          <button
+            key={a.label}
+            onClick={() => navigate(a.path)}
+            className="bg-surface-container-lowest p-5 rounded-2xl ambient-depth flex flex-col items-center justify-center gap-3 active:scale-95 transition-all group"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
+              <span className="material-symbols-outlined text-emerald-800 text-2xl">{a.icon}</span>
+            </div>
+            <span className="font-body text-[10px] font-bold text-emerald-950 uppercase tracking-tight text-center">{a.label}</span>
+          </button>
+        ))}
       </section>
 
       {/* Property Card */}

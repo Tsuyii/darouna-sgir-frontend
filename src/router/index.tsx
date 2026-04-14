@@ -7,10 +7,14 @@ import SyndicDashboard from '../pages/syndic/Dashboard'
 import SyndicUnits from '../pages/syndic/Units'
 import SyndicTasks from '../pages/syndic/Tasks'
 import SyndicFinance from '../pages/syndic/Finance'
+import SyndicAnnouncements from '../pages/syndic/Announcements'
+import SyndicVotes from '../pages/syndic/Votes'
 import ResidentDashboard from '../pages/resident/Dashboard'
 import ResidentProperties from '../pages/resident/Properties'
 import ResidentLedger from '../pages/resident/Ledger'
 import ResidentSupport from '../pages/resident/Support'
+import ResidentAnnouncements from '../pages/resident/Announcements'
+import ResidentVotes from '../pages/resident/Votes'
 import GardienDashboard from '../pages/gardien/Dashboard'
 import GardienTasks from '../pages/gardien/Tasks'
 import GardienFinance from '../pages/gardien/Finance'
@@ -48,6 +52,8 @@ export default function AppRouter() {
         <Route path="units" element={<SyndicUnits />} />
         <Route path="tasks" element={<SyndicTasks />} />
         <Route path="finance" element={<SyndicFinance />} />
+        <Route path="announcements" element={<SyndicAnnouncements />} />
+        <Route path="votes" element={<SyndicVotes />} />
       </Route>
 
       {/* Resident */}
@@ -56,6 +62,8 @@ export default function AppRouter() {
         <Route path="properties" element={<ResidentProperties />} />
         <Route path="ledger" element={<ResidentLedger />} />
         <Route path="support" element={<ResidentSupport />} />
+        <Route path="announcements" element={<ResidentAnnouncements />} />
+        <Route path="votes" element={<ResidentVotes />} />
       </Route>
 
       {/* Gardien */}

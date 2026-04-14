@@ -563,13 +563,13 @@ All features are fully implemented on the backend. Frontend only needs to call t
 | Resident home dashboard | ✅ | ✅ Done |
 | Gardien dashboard + task list | ✅ | ✅ Done |
 | Navigation shell (3 roles) | — | ✅ Done |
-| Buildings & apartments (Syndic Units) | ✅ | ⏳ Phase 2 next (placeholder only, not built) |
-| Syndic Tasks (approve/reject) | ✅ | ⏳ Phase 2 next |
-| Syndic Finance (charges/payments) | ✅ | ⏳ Phase 2 next |
-| Resident Properties | ✅ | ⏳ Phase 2 next |
-| Resident Ledger (payment history) | ✅ | ⏳ Phase 2 next |
-| Resident Support (complaints) | ✅ | ⏳ Phase 2 next |
-| Announcements | ✅ | ⏳ Phase 2 next |
+| Buildings & apartments (Syndic Units) | ✅ | ✅ Done |
+| Syndic Tasks (approve/reject) | ✅ | ✅ Done |
+| Syndic Finance (charges/payments) | ✅ | ✅ Done |
+| Resident Properties | ✅ | ✅ Done |
+| Resident Ledger (payment history) | ✅ | ✅ Done |
+| Resident Support (complaints) | ✅ | ✅ Done |
+| Announcements | ✅ | ⏳ Phase 3 next |
 | Votes | ✅ | ⏳ Phase 3 |
 | Notifications | ✅ | ⏳ Phase 3 |
 | Budgets & reports | ✅ | ⏳ Phase 3 |

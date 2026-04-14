@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import api from '../../lib/api'
 import { MOCK, mockResident } from '../../lib/mockData'
 
@@ -24,6 +25,7 @@ const ANNOUNCE_TYPE_META: Record<string, { label: string; bg: string; text: stri
 }
 
 export default function ResidentDashboard() {
+  const navigate = useNavigate()
   const [charges, setCharges] = useState<Charge[]>([])
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [loading, setLoading] = useState(true)
@@ -116,7 +118,7 @@ export default function ResidentDashboard() {
       <section className="space-y-6">
         <div className="flex justify-between items-end">
           <h3 className="font-headline text-2xl font-black text-on-surface">Building Feed</h3>
-          <a className="font-body text-xs font-bold text-primary hover:underline" href="#">View All</a>
+          <button onClick={() => navigate('/resident/announcements')} className="font-body text-xs font-bold text-primary hover:underline">View All</button>
         </div>
 
         {loading ? (
@@ -156,6 +158,23 @@ export default function ResidentDashboard() {
             })}
           </div>
         )}
+      </section>
+
+      {/* Votes shortcut */}
+      <section>
+        <button
+          onClick={() => navigate('/resident/votes')}
+          className="w-full bg-surface-container-lowest rounded-2xl p-5 ambient-depth flex items-center gap-4 active:scale-[0.98] transition-transform group"
+        >
+          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+            <span className="material-symbols-outlined text-primary text-2xl">how_to_vote</span>
+          </div>
+          <div className="flex-1 text-left">
+            <p className="font-headline font-black text-on-surface text-sm">Building Votes</p>
+            <p className="text-xs text-on-surface-variant mt-0.5">Participate in community decisions</p>
+          </div>
+          <span className="material-symbols-outlined text-on-surface-variant text-[20px]">chevron_right</span>
+        </button>
       </section>
     </div>
   )
